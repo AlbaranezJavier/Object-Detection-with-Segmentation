@@ -1,37 +1,76 @@
-## Welcome to GitHub Pages
+# Motivación
 
-You can use the [editor on GitHub](https://github.com/AlbaranezJavier/JaviProject/edit/main/docs/index.md) to maintain and preview the content for your website in Markdown files.
+Esta es la página principal de mi proyecto académico, con ella tengo la intención de mantener la máxima rigurosidad y
+facilitar a mis tutores el seguimiento de mi progreso, mantener una estructura clara de mis ideas y perseguir la excelencia.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+# Proyectos
 
-### Markdown
+Cada proyecto tiene su propia carpeta de documentación y la raíz es esta página principal.
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+ - [Trabajo Fin de Máster](TFM/index.md)
+ - [Tesis Doctoral](TS/index.md)
 
-```markdown
-Syntax highlighted code block
+# Tutores
 
-# Header 1
-## Header 2
-### Header 3
+Mis referentes académicos son una parte muy importante de mí, tengo mucho que aprender de ellos. En 3º de carrera no tenía
+pensado continuar con mis estudios y fueron exactamente estas dos personas las que promovieron mi interés por la ciencia.
+No puedo dejar de mencionar tampoco a mi tío Jose Luis Albaráñez, me transmitió su interés por el conocimiento como una 
+máxima.
 
-- Bulleted
-- List
+### [Juan José Pantrigo](http://caporesearch.es/jjpantrigo/)
 
-1. Numbered
-2. List
+<p align="center">
+  <img src="Imagenes/jjp.png" alt="JJP Imagen" width="55%" />
+</p>
 
-**Bold** and _Italic_ and `Code` text
+ - Profesor en la Universidad Rey Juan Carlos, en la Escuela Técnica Superior de Ingeniería Informática.
+ - Miembro del grupo de investigación [CAPO](http://caporesearch.es/).
+ - Licenciado en CC. Físicas por la Universidad de Extremadura, España.
+ - Doctor por la Universidad Rey Juan Carlos en 2005.
+ - Experto en la hibridación de técnicas de optimización y de estimación secuencial para resolver problemas de seguimiento visual.
+ - Su línea de interés se centra en la aplicación de métodos de aprendizaje profundo (deep learning) en problemas de visión artificial complejos tales como el seguimiento de movimiento articulado, reconocimiento y detección visual o reconocimiento de actividades humanas, entre otros.  
+ - [Página web personal](http://caporesearch.es/jjpantrigo/).
+ - E-mail: juanjose.pantrigo@urjc.es
 
-[Link](url) and ![Image](src)
-```
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+### [Emanuele Schiavi](https://gestion2.urjc.es/pdi/ver/emanuele.schiavi)
 
-### Jekyll Themes
+<p align="center">
+  <img src="Imagenes/es.png" alt="ES Imagen" width="55%" />
+</p>
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/AlbaranezJavier/JaviProject/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+ - Profesor en la Universidad Rey Juan Carlos, en la Escuela Técnica Superior de Ingeniería Informática.
+ - Licenciado en CC. Matemáticas por la Universidad de Genoa, Italia.
+ - Doctor en Matemática Aplicada por la Universidad Complutense de Madrid en 1197.
+ - Experto en el análisis y resolución de las formulaciones variacionales de Ecuaciones Diferenciales en Derivadas Parciales que aparecen en física matemática, mecánica de fluidos y ciencias de la naturaleza..
+ - Su línea de interés se centra en el análisis y procesado de imágenes digitales especialmente en modalidades médicas donde desarrolla algoritmos eficientes para los protocolos de clasificación, segmentación, registro, flujo óptico, eliminación de bias, artefactos, ruido y emborronamiento..  
+ - [Página web personal](https://gestion2.urjc.es/pdi/ver/emanuele.schiavi).
+ - E-mail: emanuele.schiavi@urjc.es
 
-### Support or Contact
+## Sobre mí
 
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+<p align="center">
+  <img src="Imagenes/me.png" alt="JA Imagen" width="55%" />
+</p>
+
+- Técnico Superior en Electromecánica y Automoción.
+- Graduado en Desarrollo y Diseño de Videojuegos por la Universidad Rey Juan Carlos.
+- Estudiante del Máster Universitario en Visión Artificial en la Universidad Rey Juan Carlos.
+- Mis intereses son los Gráficos por Computador y la Inteligencia Artificial, sobre todo centrado en problemas como la detección de objetos y los agentes inteligentes.
+- [Página web personal](https://www.linkedin.com/in/javieralbaranezmartinez/)
+- E-mail: j.albaranez@alumnos.urjc.es
+
+## Colaboradores
+
+## Metodología
+
+Dejo establecido github como punto que centraliza todo lo relacionado con mi proyecto académico. Donde:
+- Issues marca los pasos a realizar, estableciendo referencias entre las tareas por hacer y el código modificado. 
+- Discussions como centro de mensajes entre mis tutores y yo, donde se puede organizar todo por tema de conversación y permite hacer un seguimiento posterior.
+- Projects como una forma de plasmar en lo que estoy trabando y los proyectos en los que se desglosa. Cada proyecto cuenta con una planificación independiente organizada en columnas: to do, in progress y done. Cada tarjeta representa una tarea a realizar y se encuentra vinculada con las Issues.
+- Wikis queda reservado como aquel lugar en la que plasmar cosas que interese mantener en privado.
+
+Cada proyecto a su vez consta de documentación. Donde:
+- En los apartados descritos como diario ire realizando entradas, organizadas por fecha, y detallaré los problemas encontrados y sus respectivas soluciones.
+- En resultados, mostraré resultados tanto cuantitativos como cualitativos y tanto positivos como negativos, acompañandolos de un pequeño resumen.
+- Y por último, en las guías mostraré la forma de ejecutar el código que desarrolle.

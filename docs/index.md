@@ -20,7 +20,7 @@ máxima.
 ### [Juan José Pantrigo](http://caporesearch.es/jjpantrigo/)
 
 <p align="center">
-  <img src="Imagenes/jjp.png" alt="JJP Imagen" width="55%" />
+  <img src="Imagenes/jjp.png" alt="JJP Imagen" width="30%" />
 </p>
 
  - Profesor en la Universidad Rey Juan Carlos, en la Escuela Técnica Superior de Ingeniería Informática.
@@ -36,7 +36,7 @@ máxima.
 ### [Emanuele Schiavi](https://gestion2.urjc.es/pdi/ver/emanuele.schiavi)
 
 <p align="center">
-  <img src="Imagenes/es.png" alt="ES Imagen" width="55%" />
+  <img src="Imagenes/es.png" alt="ES Imagen" width="30%" />
 </p>
 
  - Profesor en la Universidad Rey Juan Carlos, en la Escuela Técnica Superior de Ingeniería Informática.
@@ -47,10 +47,10 @@ máxima.
  - [Página web personal](https://gestion2.urjc.es/pdi/ver/emanuele.schiavi).
  - E-mail: emanuele.schiavi@urjc.es
 
-## Sobre mí
+# Sobre mí
 
 <p align="center">
-  <img src="Imagenes/me.png" alt="JA Imagen" width="55%" />
+  <img src="Imagenes/me.jpg" alt="JA Imagen" width="30%" />
 </p>
 
 - Técnico Superior en Electromecánica y Automoción.
@@ -60,17 +60,17 @@ máxima.
 - [Página web personal](https://www.linkedin.com/in/javieralbaranezmartinez/)
 - E-mail: j.albaranez@alumnos.urjc.es
 
-## Colaboradores
+# Colaboradores
 
-## Metodología
+# Metodología
 
 Dejo establecido github como punto que centraliza todo lo relacionado con mi proyecto académico. Donde:
-- Issues marca los pasos a realizar, estableciendo referencias entre las tareas por hacer y el código modificado. 
-- Discussions como centro de mensajes entre mis tutores y yo, donde se puede organizar todo por tema de conversación y permite hacer un seguimiento posterior.
-- Projects como una forma de plasmar en lo que estoy trabando y los proyectos en los que se desglosa. Cada proyecto cuenta con una planificación independiente organizada en columnas: to do, in progress y done. Cada tarjeta representa una tarea a realizar y se encuentra vinculada con las Issues.
-- Wikis queda reservado como aquel lugar en la que plasmar cosas que interese mantener en privado.
+- **Issues** marca los pasos a realizar, estableciendo referencias entre las tareas por hacer y el código modificado. 
+- **Discussions** como centro de mensajes entre mis tutores y yo, donde se puede organizar todo por tema de conversación y permite hacer un seguimiento posterior.
+- **Projects** como una forma de plasmar en lo que estoy trabando y los proyectos en los que se desglosa. Cada proyecto cuenta con una planificación independiente organizada en columnas: to do, in progress y done. Cada tarjeta representa una tarea a realizar y se encuentra vinculada con las Issues.
+- **Wikis** queda reservado como aquel lugar en la que plasmar cosas que interese mantener en privado.
 
 Cada proyecto a su vez consta de documentación. Donde:
-- En los apartados descritos como diario ire realizando entradas, organizadas por fecha, y detallaré los problemas encontrados y sus respectivas soluciones.
-- En resultados, mostraré resultados tanto cuantitativos como cualitativos y tanto positivos como negativos, acompañandolos de un pequeño resumen.
-- Y por último, en las guías mostraré la forma de ejecutar el código que desarrolle.
+- En los apartados descritos como **diario** ire realizando entradas, organizadas por fecha, y detallaré los problemas encontrados y sus respectivas soluciones.
+- En **resultados**, mostraré resultados tanto cuantitativos como cualitativos y tanto positivos como negativos, acompañandolos de un pequeño resumen.
+- Y por último, en las **guías** mostraré la forma de ejecutar el código que desarrolle.

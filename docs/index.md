@@ -12,9 +12,9 @@ Cada proyecto tiene su propia carpeta de documentación y la raíz es esta pági
 
 # Tutores
 
-Mis referentes académicos son una parte muy importante de mí, tengo mucho que aprender de ellos. En 3º de carrera no tenía
+Mis referentes académicos son una parte muy importante de mí y no creo que termine nunca de aprender de ellos. En 3º de carrera no tenía
 pensado continuar con mis estudios y fueron exactamente estas dos personas las que promovieron mi interés por la ciencia.
-No puedo dejar de mencionar tampoco a mi tío Jose Luis Albaráñez, me transmitió su interés por el conocimiento como una 
+No puedo dejar de mencionar a mi tío Jose Luis Albaráñez, me transmitió su interés por el conocimiento como una 
 máxima.
 
 ### [Juan José Pantrigo](http://caporesearch.es/jjpantrigo/)
@@ -43,7 +43,7 @@ máxima.
  - Licenciado en CC. Matemáticas por la Universidad de Genoa, Italia.
  - Doctor en Matemática Aplicada por la Universidad Complutense de Madrid en 1197.
  - Experto en el análisis y resolución de las formulaciones variacionales de Ecuaciones Diferenciales en Derivadas Parciales que aparecen en física matemática, mecánica de fluidos y ciencias de la naturaleza..
- - Su línea de interés se centra en el análisis y procesado de imágenes digitales especialmente en modalidades médicas donde desarrolla algoritmos eficientes para los protocolos de clasificación, segmentación, registro, flujo óptico, eliminación de bias, artefactos, ruido y emborronamiento..  
+ - Su línea de interés se centra en el análisis y procesado de imágenes digitales especialmente en modalidades médicas donde desarrolla algoritmos eficientes para los protocolos de clasificación, segmentación, registro, flujo óptico, eliminación de bias, artefactos, ruido y emborronamiento.
  - [Página web personal](https://gestion2.urjc.es/pdi/ver/emanuele.schiavi).
  - E-mail: emanuele.schiavi@urjc.es
 
@@ -64,13 +64,13 @@ máxima.
 
 # Metodología
 
-Dejo establecido github como punto que centraliza todo lo relacionado con mi proyecto académico. Donde:
+Establezco github como punto que centraliza todo lo relacionado con mi proyecto académico, donde:
 - **Issues** marca los pasos a realizar, estableciendo referencias entre las tareas por hacer y el código modificado. 
 - **Discussions** como centro de mensajes entre mis tutores y yo, donde se puede organizar todo por tema de conversación y permite hacer un seguimiento posterior.
-- **Projects** como una forma de plasmar en lo que estoy trabando y los proyectos en los que se desglosa. Cada proyecto cuenta con una planificación independiente organizada en columnas: to do, in progress y done. Cada tarjeta representa una tarea a realizar y se encuentra vinculada con las Issues.
+- **Projects** como una forma de plasmar en lo que estoy trabajando y los proyectos en los que se desglosa. Cada proyecto cuenta con una planificación independiente, organizada en columnas: to do, in progress y done. Cada tarjeta representa una tarea a realizar y se encuentra vinculada con las Issues.
 - **Wikis** queda reservado como aquel lugar en la que plasmar cosas que interese mantener en privado.
 
-Cada proyecto a su vez consta de documentación. Donde:
-- En los apartados descritos como **diario** ire realizando entradas, organizadas por fecha, y detallaré los problemas encontrados y sus respectivas soluciones.
-- En **resultados**, mostraré resultados tanto cuantitativos como cualitativos y tanto positivos como negativos, acompañandolos de un pequeño resumen.
-- Y por último, en las **guías** mostraré la forma de ejecutar el código que desarrolle.
+Cada proyecto, a su vez, consta de documentación donde:
+- En los apartados descritos como **diario** iré realizando entradas organizadas por fecha y detallaré los problemas encontrados y sus respectivas soluciones.
+- En **resultados**, mostraré resultados tanto cuantitativos, como cualitativos y tanto positivos, como negativos, acompañándolos de un pequeño resumen.
+- Y por último, en las **guías**, mostraré la forma de ejecutar el código desarrollado.

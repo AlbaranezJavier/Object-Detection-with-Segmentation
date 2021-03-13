@@ -8,7 +8,7 @@ facilitar a mis tutores el seguimiento de mi progreso, mantener una estructura c
 Cada proyecto tiene su propia carpeta de documentación y la raíz es esta página principal.
 
  - [Trabajo Fin de Máster](TFM/index.md)
- - [Tesis Doctoral](TS/index.md)
+ - [Tesis Doctoral](TD/index.md)
 
 # Tutores
 

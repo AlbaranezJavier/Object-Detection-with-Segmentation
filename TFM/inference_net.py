@@ -1,4 +1,5 @@
-from TFM.Tools.NetManager import ModelManager, DataManager
+from TFM.Networks.ModelManager import ModelManager
+from TFM.Data.DataManager import DataManager
 import sys, time, os, shutil
 import numpy as np
 import matplotlib.pyplot as plt
@@ -9,18 +10,21 @@ This script executes the network inference.
 
 if __name__ == '__main__':
     # Variables
-    path_images = r"C:\Users\TTe_J\Downloads\SyntheticConeDataset(1005)\RightImages"
+    path_images = r"C:\Users\TTe_J\Downloads\Prueba"
     path_images_destination = r"C:\Users\TTe_J\Downloads\new_RGBs"
-    path_json = r'C:\Users\TTe_J\Downloads\train.json'
     path_newlabels = r'C:\Users\TTe_J\Downloads\new_labels.json'
-    limit = 50 # <================================================================================ unlabeled image limit
-    model = "HelperNetV1" # <=============================================================== models = HelperNetV1, Net_0
-    start_epoch = 21 # <================================================================================ trained epochs
-    weights_path = f"./Models/{model}/epoch_{start_epoch}"
+    limit = 50 # <============================= unlabeled image limit
+    model = "Net_3" # <============ models = HelperNetV1, Net_0, Net_1, Net_2
+    start_epoch = 73 # <============== trained epochs
+    color_space = 82 # <====== bgr=None, lab=44, yuv=82, hsv=40, hsl=52
+    specific_weights = "synthetic_real_yuv_resize"
+    weights_path = f'Weights/{model}/{specific_weights}_epoch'
     labels = ["b", "y", "o_s", "o_b"]
-    input_dims = (720, 1280, 3)
+    # input_dims = (6, 720, 1280, 3)
+    input_dims = (6, 513, 1025, 3)
 
-    mm = ModelManager()
+    # Load the model and weigths
+    mm = ModelManager(model, input_dims, weights_path, start_epoch, verbose=1)
 
     # Overwrite control
     if os.path.exists(path_newlabels):
@@ -32,16 +36,13 @@ if __name__ == '__main__':
         shutil.rmtree(path_images_destination)
     os.makedirs(path_images_destination)
 
-    # Load the model and weigths
-    mod = mm.load4inference(model, dim=input_dims)
-    mod.load_weights(weights_path)
 
     # Load unlabeled images
-    unlabed, names, sizes = DataManager.loadUnlabeled(path_json, path_images, path_images_destination, limit)
+    unlabed, names, sizes = DataManager.loadUnlabeled(path_images, path_images_destination, limit, color_space, input_dims[1:3])
 
     # Predict de una imagen en concreto
     start = time.time()
-    y_hat = mod.predict(unlabed)
+    y_hat = mm.nn.predict(unlabed)
     print(f'Inference time: {time.time() - start}')
 
     # Save as json and show names of the modified files

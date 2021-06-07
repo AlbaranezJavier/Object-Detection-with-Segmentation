@@ -52,3 +52,10 @@ TFM/Weights/HelperNetV1/synthetic_epoch_517.index
 TFM/Weights/HelperNetV2/checkpoint
 *.data-00000-of-00001
 *.index
+TFM_MultiNet/Weights/MNet_0/checkpoint
+TFM/Models/HelperNetV1/checkpoint
+TFM/Models/HelperNetV1/epoch_269.data-00000-of-00001
+TFM/Models/HelperNetV1/epoch_269.index
+TFM/Models/HelperNetV1/epoch_517.data-00000-of-00001
+TFM/Models/HelperNetV1/epoch_517.index
+*.data-00000-of-00001

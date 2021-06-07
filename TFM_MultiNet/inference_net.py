@@ -13,15 +13,15 @@ if __name__ == '__main__':
     path_images = r"C:\Users\TTe_J\Downloads\Prueba"
     path_images_destination = r"C:\Users\TTe_J\Downloads\new_RGBs"
     path_newlabels = r'C:\Users\TTe_J\Downloads\new_labels.json'
-    limit = 1 # <============================= unlabeled image limit
+    limit = 50 # <============================= unlabeled image limit
     model = "Net_3" # <============ models = HelperNetV1, Net_0, Net_1, Net_2
     start_epoch = 73 # <============== trained epochs
     color_space = 82 # <====== bgr=None, lab=44, yuv=82, hsv=40, hsl=52
     specific_weights = "synthetic_real_yuv_resize"
     weights_path = f'Weights/{model}/{specific_weights}_epoch'
     labels = ["b", "y", "o_s", "o_b"]
-    # input_dims = (1, 720, 1280, 3)
-    input_dims = (1, 513, 1025, 3)
+    # input_dims = (6, 720, 1280, 3)
+    input_dims = (6, 513, 1025, 3)
 
     # Load the model and weigths
     mm = ModelManager(model, input_dims, weights_path, start_epoch, verbose=1)
@@ -41,10 +41,9 @@ if __name__ == '__main__':
     unlabed, names, sizes = DataManager.loadUnlabeled(path_images, path_images_destination, limit, color_space, input_dims[1:3])
 
     # Predict de una imagen en concreto
-    for i in range(100):
-        start = time.time()
-        y_hat = mm.nn.predict(unlabed)
-        print(f'Inference time: {time.time() - start}')
+    start = time.time()
+    y_hat = mm.nn.predict(unlabed)
+    print(f'Inference time: {time.time() - start}')
 
     # Save as json and show names of the modified files
     vgg = DataManager.mask2vgg(np.round(y_hat).astype(np.uint8), labels, names, sizes, save_path=path_newlabels)

@@ -1,9 +1,9 @@
-from tensorflow.keras.layers import Conv2D, concatenate, BatchNormalization, Conv2DTranspose
+from tensorflow.keras.layers import Conv2D, concatenate, BatchNormalization
 from tensorflow.keras.regularizers import L2
 import numpy as np
-from tensorflow.keras import Model, Input
+from tensorflow.keras import Model
 import cv2, glob
-from tensorflow import keras, random_normal_initializer, Variable, zeros_initializer
+from tensorflow import keras
 import tensorflow as tf
 
 

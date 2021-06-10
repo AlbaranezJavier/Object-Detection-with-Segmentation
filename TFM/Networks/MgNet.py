@@ -104,11 +104,12 @@ class Conv2D_W(keras.layers.Layer):
         else:
             self.w = tf.transpose(shared_conv.w, perm=[0, 2, 1, 3])
             self.b = shared_conv.b
+        self.bn = BatchNormalization()
 
     def call(self, inputs):
         # tf.nn.conv2d(   input, filters, strides, padding, data_format='NHWC', dilations=None,   name=None)
         convolucion = tf.nn.conv2d(inputs, self.w, strides=[1, self.stride, self.stride, 1], padding=self.padding)
-        convolucion = tf.keras.layers.BatchNormalization()(convolucion)
+        convolucion = self.bn(convolucion)
         return tf.nn.relu(convolucion + self.b)
 
 class Mg_Block(keras.layers.Layer):
@@ -249,28 +250,30 @@ class Net_test(Model):
         return x
 
 
-def MgNet_0(f, batch, learn_reg=1e-2):
-    # Variables
-    l2 = L2(learn_reg)
-    mg = Mg_Block(k_dim=3, output_channel=5, u_shape=[batch, 513, 1025, 5], k_reg=l2)
+class MgNet_0(Model):
+    def __init__(self, batch, learn_reg=1e-2):
+        super(MgNet_0, self).__init__()
+        # Variables
+        l2 = L2(learn_reg)
+        self.mg_b = Mg_Block(k_dim=3, output_channel=5, u_shape=[batch, 513, 1025, 5], k_reg=l2)
+        self.mg_c1 = Mg_Cycle(k_dim=3, output_size=[batch, 129, 257, 5], shared_conv=self.mg_b.b3, k_reg=l2)
+        self.mg_c2 = Mg_Cycle(k_dim=3, output_size=[batch, 257, 513, 5], shared_conv=self.mg_b.b2, k_reg=l2)
+        self.mg_c3 = Mg_Cycle(k_dim=3, output_size=[batch, 513, 1025, 5], shared_conv=self.mg_b.b1, k_reg=l2)
+        self.conv_softmax = Conv2D(filters=5, kernel_size=(1, 1), strides=(1, 1), padding='SAME', kernel_regularizer=l2,
+                   activation="softmax")
 
-    # Block
-    u1, f1, u2, f2, u3, f3, u4, f4 = mg(f)
+    def call(self, f):
+        # Block
+        u1, f1, u2, f2, u3, f3, u4, f4 = self.mg_b(f)
 
-    # - Cycle 3
-    u = Mg_Cycle(k_dim=3, output_size=[batch, 129, 257, 5], shared_conv=mg.b3, k_reg=l2)(u_prev=u3, u_post=u4, f=f3, v=3)
+        # - Cycles
+        u = self.mg_c1(u_prev=u3, u_post=u4, f=f3, v=3)
+        u = self.mg_c2(u_prev=u2, u_post=u3, f=f2, v=3, u=u)
+        u = self.mg_c3(u_prev=u1, u_post=u2, f=f1, v=3, u=u)
 
-    # - Cycle 2
-    u = Mg_Cycle(k_dim=3, output_size=[batch, 257, 513, 5], shared_conv=mg.b2, k_reg=l2)(u_prev=u2, u_post=u3, f=f2, v=3, u=u)
-
-    # - Cycle 1
-    u = Mg_Cycle(k_dim=3, output_size=[batch, 513, 1025, 5], shared_conv=mg.b1, k_reg=l2)(u_prev=u1, u_post=u2, f=f1, v=3, u=u)
-
-    # Out
-    u = Conv2D(filters=5, kernel_size=(1, 1), strides=(1, 1), padding='SAME', kernel_regularizer=l2,
-               activation="softmax")(u)
-
-    return u
+        # Out
+        u = self.conv_softmax(u)
+        return u
 
 
 if __name__ == '__main__':

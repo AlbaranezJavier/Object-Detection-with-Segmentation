@@ -61,7 +61,8 @@ class ModelManager:
         elif self.model == "Net_5":
             self.nn = Model(inputs, Net_5(inputs, self.dim[0], learn_reg))
         elif self.model == "MgNet_0":
-            self.nn = Model(inputs, MgNet_0(inputs, self.dim[0], learn_reg))
+            self.nn = MgNet_0(self.dim[0], learn_reg)
+            self.nn.build(input_shape=self.dim)
         else:
             print("ERROR load_mod")
             print(exit)

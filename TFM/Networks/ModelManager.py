@@ -6,6 +6,7 @@ from tensorflow.keras.losses import CategoricalCrossentropy
 from tensorflow.keras.metrics import CategoricalAccuracy
 from TFM.Networks.Net import *
 from TFM.Networks.HNet import *
+from TFM.Networks.MgNet import *
 
 import matplotlib.pyplot as plt
 
@@ -55,6 +56,12 @@ class ModelManager:
             self.nn = Model(inputs, Net_2(inputs, self.dim[0], learn_reg))
         elif self.model == "Net_3":
             self.nn = Model(inputs, Net_3(inputs, self.dim[0], learn_reg))
+        elif self.model == "Net_4":
+            self.nn = Model(inputs, Net_4(inputs, self.dim[0], learn_reg))
+        elif self.model == "Net_5":
+            self.nn = Model(inputs, Net_5(inputs, self.dim[0], learn_reg))
+        elif self.model == "MgNet_0":
+            self.nn = Model(inputs, MgNet_0(inputs, self.dim[0], learn_reg))
         else:
             print("ERROR load_mod")
             print(exit)

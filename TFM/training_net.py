@@ -14,17 +14,18 @@ if __name__ == '__main__':
     labels = ["b", "y", "o_s", "o_b"]
     # labels = ["binary"]
     # label_size = (720, 1280, len(labels)+1)
-    # label_size = (180, 320, len(labels)+1)
-    label_size = (513, 1025, len(labels)+1)
+    label_size = (180, 320, len(labels)+1)
+    # label_size = (513, 1025, len(labels)+1)
     batch_size = 8
     valid_size = .10
+    regresion_task = True
 
-    dm = DataManager(inputs_rgb, labels, label_size, valid_size, batch_size)
+    dm = DataManager(inputs_rgb, labels, label_size, valid_size, batch_size, regresion_task)
 
     # Net Variables
-    model = "MgNet_0"  # models = HelperNetV1, ..V2, ..V3, Net_0, .._1, .._2, .._3, .._4, MgNet_0
-    start_epoch = 0 # <= number epoch trained
-    id_copy = "_yuv" # <= logs version? "" => main
+    model = "Net_5"  # models = HelperNetV1, ..V2, ..V3, Net_0, .._1, .._2, .._3, .._4, .._5, MgNet_0
+    start_epoch = 100 # <= number epoch trained
+    id_copy = "_yuv_reg" # <= logs version? "" => main
     color_space = 82 # <= bgr=None, lab=44, yuv=82, hsv=40, hsl=52
     end_epoch = start_epoch + 100
     learn_opt, learn_reg = 1e-3, 1e-2
@@ -32,9 +33,9 @@ if __name__ == '__main__':
     min_acc = 99.75
     specific_weights = "synthetic_real"+id_copy
     weights_path = f'Weights/{model}/{specific_weights}_epoch'
-    input_dims = (batch_size, 513, 1025, 3)
+    input_dims = (batch_size, 180, 320, 3)
 
-    tm = TrainingModel(model, input_dims, weights_path, start_epoch, learn_opt, learn_reg)
+    tm = TrainingModel(model, input_dims, weights_path, start_epoch, learn_opt, learn_reg, regresion_task)
 
     ts = TrainingStats(model+id_copy, specific_weights, start_epoch)
 

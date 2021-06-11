@@ -378,7 +378,7 @@ def Net_4(inputs, batch, learn_reg=1e-2):
     n3Ld = Conv2D(filters=5, kernel_size=(1, 1), kernel_regularizer=l2, padding="SAME", activation="softmax")(n3Ld)
     return n3Ld
 
-def Net_5(inputs, batch, learn_reg=1e-2):
+def Net_5(inputs, batch, regresion, learn_reg=1e-2):
     # Variables
     l2 = L2(learn_reg)
 
@@ -418,7 +418,10 @@ def Net_5(inputs, batch, learn_reg=1e-2):
 
     # - Level 3, Ld
     n3Ld = concatenate([n3Li, n4Ld])
-    n3Ld = Conv2D(filters=5, kernel_size=(1, 1), kernel_regularizer=l2, padding="SAME", activation="softmax")(n3Ld)
+    if regresion:
+        n3Ld = Conv2D(filters=5, kernel_size=(1, 1), kernel_regularizer=l2, padding="SAME", activation="relu")(n3Ld)
+    else:
+        n3Ld = Conv2D(filters=5, kernel_size=(1, 1), kernel_regularizer=l2, padding="SAME", activation="softmax")(n3Ld)
     return n3Ld
 
 

@@ -2,8 +2,8 @@ import tensorflow as tf
 from tensorflow.keras.layers import Input
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import RMSprop
-from tensorflow.keras.losses import CategoricalCrossentropy
-from tensorflow.keras.metrics import CategoricalAccuracy
+from tensorflow.keras.losses import CategoricalCrossentropy, MeanAbsoluteError, MeanSquaredError
+from tensorflow.keras.metrics import CategoricalAccuracy, Accuracy
 from TFM.Networks.Net import *
 from TFM.Networks.HNet import *
 from TFM.Networks.MgNet import *
@@ -18,9 +18,10 @@ class ModelManager:
     """
     This class manages the neural models
     """
-    def __init__(self, model, dim, path_weights, start_epoch, learn_reg=1e-3, verbose=1):
+    def __init__(self, model, dim, path_weights, start_epoch, regresion, learn_reg=1e-3, verbose=1):
         self.model = model
         self.dim = dim
+        self.regresion = regresion
         self.path_weights = path_weights
         self.start_epoch = start_epoch
         self.nn = self._load_nn(learn_reg, verbose)
@@ -59,7 +60,7 @@ class ModelManager:
         elif self.model == "Net_4":
             self.nn = Model(inputs, Net_4(inputs, self.dim[0], learn_reg))
         elif self.model == "Net_5":
-            self.nn = Model(inputs, Net_5(inputs, self.dim[0], learn_reg))
+            self.nn = Model(inputs, Net_5(inputs, self.dim[0], self.regresion, learn_reg))
         elif self.model == "MgNet_0":
             self.nn = MgNet_0(self.dim[0], learn_reg)
             self.nn.build(input_shape=self.dim)
@@ -75,13 +76,18 @@ class ModelManager:
         return self.nn
 
 class TrainingModel(ModelManager):
-    def __init__(self, model, dim, path_weights, start_epoch, learn_opt, learn_reg, verbose=1):
+    def __init__(self, model, dim, path_weights, start_epoch, learn_opt, learn_reg, regresion, verbose=1):
         super().__init__(model, dim, path_weights, start_epoch, learn_reg, verbose)
         self.optimizer = RMSprop(learn_opt)
-        self.loss_fn = CategoricalCrossentropy(from_logits=False)
-        self.train_acc_metric = CategoricalAccuracy()
-        self.valid_acc_metric = CategoricalAccuracy()
         self.worst50 = {}
+        if regresion:
+            self.loss_fn = MeanSquaredError()
+            self.valid_acc_metric = Accuracy()
+            self.train_acc_metric = Accuracy()
+        else:
+            self.loss_fn = CategoricalCrossentropy(from_logits=False)
+            self.train_acc_metric = CategoricalAccuracy()
+            self.valid_acc_metric = CategoricalAccuracy()
 
     def _add_worst(self, value, path):
         pass

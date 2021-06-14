@@ -154,7 +154,7 @@ class Mg_Block(keras.layers.Layer):
         u1 = tf.nn.relu(self.bn(self.b1(tf.nn.relu(a))))
         for i in range(3):
             a = f - self.bn_a(self.a1(u1))
-            b = tf.nn.relu(self.bn(self.b1(tf.nn.relu(a))))
+            b = self.b1(tf.nn.relu(a))
             u1 = u1 + b
 
         # - Interpolation and restriction
@@ -169,7 +169,7 @@ class Mg_Block(keras.layers.Layer):
         u2 = b + u2
         for i in range(3):
             a = _f2 - self.bn_a(self.a2(u2))
-            b = tf.nn.relu(self.bn(self.b2(tf.nn.relu(a))))
+            b = self.b2(tf.nn.relu(a))
             u2 = u2 + b
 
         # - Interpolation and restriction
@@ -184,7 +184,7 @@ class Mg_Block(keras.layers.Layer):
         u3 = b + u3
         for i in range(3):
             a = _f3 - self.bn_a(self.a3(u3))
-            b = tf.nn.relu(self.bn(self.b3(tf.nn.relu(a))))
+            b = self.b3(tf.nn.relu(a))
             u3 = u3 + b
 
         # - Interpolation and restriction
@@ -199,7 +199,7 @@ class Mg_Block(keras.layers.Layer):
         u4 = b + u4
         for i in range(3):
             a = _f4 - self.bn_a(self.a4(u4))
-            b = tf.nn.relu(self.bn(self.b4(tf.nn.relu(a))))
+            b = self.b4(tf.nn.relu(a))
             u4 = u4 + b
 
         return u1, f, u2, _f2, u3, _f3, u4, _f4
@@ -230,7 +230,7 @@ class Mg_Cycle(keras.layers.Layer):
         # Post-smoothing
         for i in range(v):
             a = self.bn_a(self.a(_u))
-            b = tf.nn.relu(self.bn(self.b(tf.nn.relu(f - a))))
+            b = self.b(tf.nn.relu(f - a))
             _u = _u + b
         return _u
 

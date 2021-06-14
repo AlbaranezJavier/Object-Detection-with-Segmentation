@@ -11,10 +11,10 @@ class DataManager():
     This class contains all the functionality necessary to control the input/output data to the network.
     """
 
-    def __init__(self, rgb_path, labels, label_size, valid_size, batch_size, regresion, seed=123, shuffle=True):
+    def __init__(self, rgb_path, labels, label_size, valid_size, batch_size, output_type, seed=123, shuffle=True):
         # Managing directories
         self._constants()
-        self.regresion = regresion
+        self.output_type = output_type
         self.rgb_paths, self.gt_paths = self._getpaths(rgb_path, labels)
         _X_train, _X_valid, _Y_train, _Y_valid = train_test_split(self.rgb_paths, self.gt_paths,
                                                                                   test_size=valid_size,
@@ -196,7 +196,7 @@ class DataManager():
         :param step: could be train or valid
         :return: array of masks [0-1]
         """
-        y = [self._label2mask(label, self.label_size, self.regresion) for label in self.Y[step][self.batches[step][idx]:self.batches[step][idx + 1]]]
+        y = [self._label2mask(label, self.label_size, self.output_type) for label in self.Y[step][self.batches[step][idx]:self.batches[step][idx + 1]]]
         return np.array(y)
 
     def x_idx(self, idx, step):
@@ -217,19 +217,19 @@ class DataManager():
         :param step: trining or valid
         :return: mask
         """
-        return self._label2mask(self.Y[step][idx], self.label_size, self.regresion)
+        return self._label2mask(self.Y[step][idx], self.label_size, self.output_type)
 
     def _batch_division(self, set, batch_size):
         batch_idx = np.arange(0, len(set), batch_size)
         return batch_idx
 
     # Annotation management
-    def _label2mask(self, data, label_size, regresion, original_size=(720, 1280)):
+    def _label2mask(self, data, label_size, output_type, original_size=(720, 1280)):
         """
         Generates a mask with the labeling data
         :param data: labeling
         :param label_size: dimensions
-        :param regresion: boolean, true = mask between [0, 255] with radial gradient or false = mask between [0,1]
+        :param output_type: boolean, true = mask between [0, 255] with radial gradient or false = mask between [0,1]
         :param original_size: original size mask labels
         :return: mask
         """
@@ -237,7 +237,7 @@ class DataManager():
         for lab in range(label_size[2] - 1):
             zeros = np.zeros(original_size, dtype=np.uint8)
             for idx in range(len(data[lab])):
-                if regresion:
+                if output_type == "reg" or "reg+cls":
                     _x, _y, _w, _h = cv2.boundingRect(data[lab][idx])
                     _shape = zeros[_y:_y+_h, _x:_x+_w].shape
                     if _shape[0]//2 != 0 and _shape[1]//2 != 0:

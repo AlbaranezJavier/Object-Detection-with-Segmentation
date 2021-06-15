@@ -111,7 +111,7 @@ class StatsData:
             # Add some text for labels, title and custom x-axis tick labels, etc.
             [ax[1].text(instances_bar[i].xy[0], instances[i], instances[i], color='black') for i in range(len(instances))]
             [ax[1].text(areas_bar[i].xy[0], areas[i], round(areas[i], 2), color='black') for i in range(len(areas))]
-            ax[1].set_ylabel('Counter/Pixels')
+            ax[1].set_ylabel('Counter/Mean Pixels')
             ax[1].set_ylim((0, np.max([instances, areas])*1.2))
             ax[1].set_xlabel('Classes')
             ax[1].set_title('Class information')

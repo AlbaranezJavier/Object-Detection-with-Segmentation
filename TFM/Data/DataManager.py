@@ -29,9 +29,10 @@ class DataManager():
         self.batches_size = {"train":len(self.batches["train"]), "valid":len(self.batches["valid"])}
 
         # Print data info
-        print(f'Size: {len(self.rgb_paths)}')
-        print(f'Train: {self.data_size["train"]} y valid: {self.data_size["valid"]}')
-        print(f'Train batches: {self.batches_size["train"]}, valid batches: {self.batches_size["valid"]}')
+        print(f'Data Info\n - Size: {len(self.rgb_paths)}')
+        print(f' - Train: {self.data_size["train"]} y valid: {self.data_size["valid"]}')
+        print(f' - Train batches: {self.batches_size["train"]}, valid batches: {self.batches_size["valid"]}')
+        print(f' - Paths: {rgb_path}, train: {self._get_info(rgb_path, "train")}, valid: {self._get_info(rgb_path, "valid")}')
 
     # Input data
     @classmethod
@@ -95,7 +96,6 @@ class DataManager():
             raise Exception("Structure from json incompatible")
 
         return data
-
 
     def _getpaths(self, img_paths, labels):
         '''
@@ -254,7 +254,6 @@ class DataManager():
             img[:, :, label_size[2] - 1] *= np.logical_not(zeros)
         return img
 
-
     def prediction2mask(self, prediction):
         """
         From prediction to mask
@@ -320,3 +319,18 @@ class DataManager():
                 outfile.close()
         return file
 
+    # Info data for training
+    def _get_info(self, directories, step):
+        """
+        Count the number of images for each directory, differentiating between training and validation.
+        :param directories: directories
+        :param step: valid or train
+        :return: train array, valid array
+        """
+        counter = [0 for i in directories]
+        for path in self.X[step]:
+            img_dir = path.split('/')[0]
+            for i in range(len(directories)):
+                if img_dir == directories[i]:
+                    counter[i] += 1
+        return counter

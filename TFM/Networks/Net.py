@@ -423,7 +423,7 @@ def Net_5(inputs, batch, output_type, learn_reg=1e-2):
     elif output_type == "reg+cls":
         n3Ld_reg = Conv2D(filters=4, kernel_size=(1, 1), kernel_regularizer=l2, padding="SAME", activation="relu")(n3Ld)
         n3Ld_cls = Conv2D(filters=1, kernel_size=(1, 1), kernel_regularizer=l2, padding="SAME", activation="softmax")(n3Ld)
-        n3Ld = concatenate([n3Ld_reg, n3Ld_cls], axis=3)
+        return n3Ld_reg, n3Ld_cls
     else:
         n3Ld = Conv2D(filters=5, kernel_size=(1, 1), kernel_regularizer=l2, padding="SAME", activation="softmax")(n3Ld)
     return n3Ld

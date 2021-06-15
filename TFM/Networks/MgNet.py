@@ -112,9 +112,9 @@ class Conv2D_W(keras.layers.Layer):
         convolucion = self.bn(convolucion)
         return tf.nn.relu(convolucion + self.b)
 
-class Mg_Block(keras.layers.Layer):
+class Mg_DOWN(keras.layers.Layer):
     def __init__(self, k_dim, output_channel, u_shape, j, v, k_reg=None, **kwargs):
-        super(Mg_Block, self).__init__(**kwargs)
+        super(Mg_DOWN, self).__init__(**kwargs)
         self.v = v
         self.u_shape = u_shape
 
@@ -128,7 +128,7 @@ class Mg_Block(keras.layers.Layer):
 
         # Interpolator
         self.i = [Conv2D(filters=output_channel, kernel_size=(k_dim, k_dim), strides=(2, 2), padding='SAME',
-                         kernel_regularizer=k_reg, activation="relu", name="i"+str(l)) for l in range(1, j)]
+                         kernel_regularizer=k_reg, name="i"+str(l)) for l in range(1, j)]
 
         # Restrictor
         self.r = Conv2DFixed("bilinear", 3)
@@ -151,9 +151,9 @@ class Mg_Block(keras.layers.Layer):
         # Loop: IaR => Smoothing
         for l in range(1, self.v):
             # - Interpolation and restriction
-            u.append(self.i[l-1](u[l-1])) # i[l-1] is correct, is an array
+            u.append(self.bn(self.i[l-1](u[l-1]))) # i[l-1] is correct, is an array
             _a = self.bn_a(self.a[l](u[l]))
-            f.append(self.r(a) + _a)
+            f.append(self.bn_a(self.r(a)) + _a)
 
             # Next level
             # - Smoothing
@@ -165,9 +165,9 @@ class Mg_Block(keras.layers.Layer):
         return u, f
 
 
-class Mg_Cycle(keras.layers.Layer):
+class Mg_UP(keras.layers.Layer):
     def __init__(self, k_dim, output_size, l, v, k_reg=None):
-        super(Mg_Cycle, self).__init__()
+        super(Mg_UP, self).__init__()
         self.v = v
 
         # Data-feature mapping
@@ -186,13 +186,13 @@ class Mg_Cycle(keras.layers.Layer):
     def call(self, u_prev, u_post, f, u=None):
         # Prolongation and correction
         if u == None:
-            _u = u_prev + self.p(-u_post)
+            _u = u_prev + self.bn(self.p(-u_post))
         else:
-            _u = u_prev + self.p(u - u_post)
+            _u = u_prev + self.bn(self.p(u - u_post))
         # Post-smoothing
         for i in range(self.v):
             a = self.bn_a(self.a(_u))
-            b = self.b[i](tf.nn.relu(f - a))
+            b = tf.nn.relu(self.bn(self.b[i](tf.nn.relu(f - a))))
             _u = _u + b
         return _u
 
@@ -217,10 +217,10 @@ class MgNet_0(Model):
         super(MgNet_0, self).__init__()
         # Variables
         l2 = L2(learn_reg)
-        self.mg_b = Mg_Block(k_dim=3, output_channel=5, u_shape=[batch, 513, 1025, 5], j=4, v=4, k_reg=l2)
-        self.mg_c1 = Mg_Cycle(k_dim=3, output_size=[batch, 129, 257, 5], l=3, v=4, k_reg=l2)
-        self.mg_c2 = Mg_Cycle(k_dim=3, output_size=[batch, 257, 513, 5], l=2, v=4, k_reg=l2)
-        self.mg_c3 = Mg_Cycle(k_dim=3, output_size=[batch, 513, 1025, 5], l=1, v=4, k_reg=l2)
+        self.mg_b = Mg_DOWN(k_dim=3, output_channel=5, u_shape=[batch, 513, 1025, 5], j=4, v=4, k_reg=l2)
+        self.mg_c1 = Mg_UP(k_dim=3, output_size=[batch, 129, 257, 5], l=3, v=4, k_reg=l2)
+        self.mg_c2 = Mg_UP(k_dim=3, output_size=[batch, 257, 513, 5], l=2, v=4, k_reg=l2)
+        self.mg_c3 = Mg_UP(k_dim=3, output_size=[batch, 513, 1025, 5], l=1, v=4, k_reg=l2)
         self.conv_softmax = Conv2D(filters=5, kernel_size=(1, 1), strides=(1, 1), padding='SAME', kernel_regularizer=l2,
                    activation="softmax")
 

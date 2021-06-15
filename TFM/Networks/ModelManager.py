@@ -142,17 +142,15 @@ class TrainingModel(ModelManager):
         Train step for outputs with regression and classification
         """
         with tf.GradientTape() as tape:
-            logits = self.nn(x, training=True)
-            loss_value = 0
-            for i in range(0, len(self._loss_fn)):
-                loss_value += self._loss_fn[i](y[:, :, :, self.sets_channels[i][0]:self.sets_channels[i][1]],
-                                               logits[:, :, :, self.sets_channels[i][0]:self.sets_channels[i][1]])
-        grads = tape.gradient(loss_value, self.nn.trainable_weights)
+            reg, cls = self.nn(x, training=True)
+            loss_reg = self._loss_fn[0](y[:, :, :, self.sets_channels[0][0]:self.sets_channels[0][1]], reg)
+            loss_cls = self._loss_fn[1](y[:, :, :, self.sets_channels[1][0]:self.sets_channels[1][1]], cls)
+            loss = loss_reg + loss_cls
+        grads = tape.gradient(loss, self.nn.trainable_weights)
         self.optimizer.apply_gradients(zip(grads, self.nn.trainable_weights))
-        for i in range(len(self._train_acc_metric)):
-            self._train_acc_metric[i].update_state(y[:, :, :, self.sets_channels[i][0]:self.sets_channels[i][1]],
-                                                   logits[:, :, :, self.sets_channels[i][0]:self.sets_channels[i][1]])
-        return loss_value
+        self._train_acc_metric[0].update_state(y[:, :, :, self.sets_channels[0][0]:self.sets_channels[0][1]], reg)
+        self._train_acc_metric[1].update_state(y[:, :, :, self.sets_channels[1][0]:self.sets_channels[1][1]], cls)
+        return loss
 
     @tf.function
     def _valid_step(self, x, y):
@@ -161,7 +159,6 @@ class TrainingModel(ModelManager):
 
     @tf.function
     def _valid_step_rc(self, x, y):
-        val_logits = self.nn(x, training=False)
-        for i in range(len(self._valid_acc_metric)):
-            self._valid_acc_metric[i].update_state(y[:, :, :, self.sets_channels[i][0]:self.sets_channels[i][1]],
-                                                   val_logits[:, :, :, self.sets_channels[0][0]:self.sets_channels[0][1]])
+        reg, cls = self.nn(x, training=False)
+        self._valid_acc_metric[0].update_state(y[:, :, :, self.sets_channels[0][0]:self.sets_channels[0][1]], reg)
+        self._valid_acc_metric[1].update_state(y[:, :, :, self.sets_channels[1][0]:self.sets_channels[1][1]], cls)

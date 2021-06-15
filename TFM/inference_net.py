@@ -15,10 +15,10 @@ if __name__ == '__main__':
     path_newlabels = r'C:\Users\TTe_J\Downloads\new_labels.json'
     limit = 50 # <============================= unlabeled image limit
     model = "Net_5" # <============ models = HelperNetV1, Net_0, Net_1, Net_2
-    start_epoch = 3638 # <============== trained epochs
+    output_type = "reg+cls"  # regression = reg, classification = cls, regression + classficiation = reg+cls
+    start_epoch = 4300 # <============== trained epochs
     color_space = 82 # <====== bgr=None, lab=44, yuv=82, hsv=40, hsl=52
-    regresion_task = True
-    specific_weights = "synthetic_real_yuv_reg"
+    specific_weights = "synthetic_real_yuv_rc"
     weights_path = f'Weights/{model}/{specific_weights}_epoch'
     labels = ["b", "y", "o_s", "o_b"]
     # input_dims = (1, 720, 1280, 3)
@@ -26,7 +26,7 @@ if __name__ == '__main__':
     input_dims = (9, 180, 320, 3)
 
     # Load the model and weigths
-    mm = ModelManager(model, input_dims, weights_path, start_epoch, output_type=regresion_task, verbose=1)
+    mm = ModelManager(model, input_dims, weights_path, start_epoch, output_type, verbose=1)
 
     # Overwrite control
     if os.path.exists(path_newlabels):

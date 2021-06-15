@@ -237,7 +237,7 @@ class DataManager():
         for lab in range(label_size[2] - 1):
             zeros = np.zeros(original_size, dtype=np.uint8)
             for idx in range(len(data[lab])):
-                if output_type == "reg" or "reg+cls":
+                if output_type == "reg" or output_type == "reg+cls":
                     _x, _y, _w, _h = cv2.boundingRect(data[lab][idx])
                     _shape = zeros[_y:_y+_h, _x:_x+_w].shape
                     if _shape[0]//2 != 0 and _shape[1]//2 != 0:

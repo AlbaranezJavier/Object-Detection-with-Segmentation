@@ -18,19 +18,19 @@ if __name__ == '__main__':
     # label_size = (513, 1025, len(labels)+1)
     batch_size = 8
     valid_size = .10
-    output_type = "reg+cls" # regression = reg, classification = cls, regression + classficiation = reg+cls
+    output_type = "cls" # regression = reg, classification = cls, regression + classficiation = reg+cls
 
     dm = DataManager(inputs_rgb, labels, label_size, valid_size, batch_size, output_type)
 
     # Net Variables
     model = "Net_5"  # models = HelperNetV1, ..V2, ..V3, Net_0, .._1, .._2, .._3, .._4, .._5, MgNet_0
-    start_epoch = 0 # <= number epoch trained
-    id_copy = "_yuv_rc" # <= logs version? "" => main
+    start_epoch = 200 # <= number epoch trained
+    id_copy = "_yuv" # <= logs version? "" => main
     color_space = 82 # <= bgr=None, lab=44, yuv=82, hsv=40, hsl=52
-    end_epoch = start_epoch + 100
-    learn_opt, learn_reg = 1e-3, 1e-2
+    end_epoch = start_epoch + 500
+    learn_opt, learn_reg = 1e-5, 1e-2
     save_weights = True
-    min_acc = 99.8
+    min_acc = 99.77
     specific_weights = "synthetic_real"+id_copy
     weights_path = f'Weights/{model}/{specific_weights}_epoch'
     input_dims = (batch_size, 180, 320, 3)

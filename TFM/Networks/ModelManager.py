@@ -2,8 +2,8 @@ import tensorflow as tf
 from tensorflow.keras.layers import Input
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import RMSprop
-from tensorflow.keras.losses import CategoricalCrossentropy, MeanAbsoluteError, MeanSquaredError
-from tensorflow.keras.metrics import CategoricalAccuracy, Accuracy
+from tensorflow.keras.losses import CategoricalCrossentropy, BinaryCrossentropy, MeanAbsoluteError, MeanSquaredError
+from tensorflow.keras.metrics import CategoricalAccuracy, BinaryAccuracy, Accuracy
 from TFM.Networks.Net import *
 from TFM.Networks.HNet import *
 from TFM.Networks.MgNet import *
@@ -89,9 +89,9 @@ class TrainingModel(ModelManager):
             self._train_acc_metric = Accuracy()
         elif output_type == "reg+cls":
             self.sets_channels = [[0, 4], [4, 5]]
-            self._loss_fn = [MeanSquaredError(), CategoricalCrossentropy(from_logits=False)]
-            self._valid_acc_metric = [Accuracy(), CategoricalAccuracy()]
-            self._train_acc_metric = [Accuracy(), CategoricalAccuracy()]
+            self._loss_fn = [MeanSquaredError(), BinaryCrossentropy(from_logits=False)]
+            self._valid_acc_metric = [Accuracy(), BinaryAccuracy()]
+            self._train_acc_metric = [Accuracy(), BinaryAccuracy()]
         else:
             self._loss_fn = CategoricalCrossentropy(from_logits=False)
             self._train_acc_metric = CategoricalAccuracy()
@@ -101,17 +101,41 @@ class TrainingModel(ModelManager):
         pass
         # if value < self.worst50[max(self.worst50)]
 
+    # Save Model
+    def save_best(self, best, metric, min_acc, epoch, end_epoch, save_weights, weights_path=None):
+        """
+        Save the model weights if: it is the best metric so far and exceeds the minimum value, or it is the last
+        training epoch. In any case, it is not saved if you have indicated not to save.
+        :param best: best metric value to date
+        :param metric: value
+        :param min_acc: min value to save
+        :param epoch: current epoch
+        :param end_epoch: last epoch
+        :param save_weights: true=save or false=dont save
+        :param weights_path: path to store the weights
+        :return: true if saved, false if not saved
+        """
+        current_value = np.sum(metric) / len(metric) if isinstance(metric, list) else metric
+        best = np.sum(best) / len(best) if isinstance(best, list) else best
+        min_acc = np.sum(min_acc) / len(min_acc) if isinstance(min_acc, list) else min_acc
+        if save_weights and ((current_value > min_acc and current_value > best) or epoch == end_epoch):
+            self.nn.save_weights(f'{weights_path}_{epoch}')
+            return True
+        else:
+            return False
+
+
     # Metrics
     def get_acc(self, type):
         acc_metrics = self._train_acc_metric if type == "train" else self._valid_acc_metric
-        acc = 0
         if isinstance(acc_metrics, list):
+            acc = []
             for acc_metric in acc_metrics:
-                acc += acc_metric.result()
+                acc.append(float(acc_metric.result()*100.))
                 acc_metric.reset_states()
-            return (acc/len(acc_metrics)) * 100.
+            return acc
         else:
-            return acc_metrics.result() * 100.
+            return float(acc_metrics.result() * 100.)
 
     # Training and validation steps
     def train(self, x, y):
@@ -143,14 +167,13 @@ class TrainingModel(ModelManager):
         """
         with tf.GradientTape() as tape:
             reg, cls = self.nn(x, training=True)
-            loss_reg = self._loss_fn[0](y[:, :, :, self.sets_channels[0][0]:self.sets_channels[0][1]], reg)
-            loss_cls = self._loss_fn[1](y[:, :, :, self.sets_channels[1][0]:self.sets_channels[1][1]], cls)
-            loss = loss_reg + loss_cls
-        grads = tape.gradient(loss, self.nn.trainable_weights)
+            targets = [y[:, :, :, self.sets_channels[0][0]:self.sets_channels[0][1]],
+                      y[:, :, :, self.sets_channels[1][0]:self.sets_channels[1][1]]]
+            losses = [l(t, o) for l, o, t in zip(self._loss_fn, [reg, cls], targets)]
+        grads = tape.gradient(losses, self.nn.trainable_weights)
         self.optimizer.apply_gradients(zip(grads, self.nn.trainable_weights))
-        self._train_acc_metric[0].update_state(y[:, :, :, self.sets_channels[0][0]:self.sets_channels[0][1]], reg)
-        self._train_acc_metric[1].update_state(y[:, :, :, self.sets_channels[1][0]:self.sets_channels[1][1]], cls)
-        return loss
+        [m.update_state(t, o) for m, o, t in zip(self._train_acc_metric, [reg, cls], targets)]
+        return losses
 
     @tf.function
     def _valid_step(self, x, y):

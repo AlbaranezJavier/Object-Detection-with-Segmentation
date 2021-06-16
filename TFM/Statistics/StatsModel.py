@@ -259,7 +259,7 @@ class TrainingStats():
             outfile.write(json_file)
             outfile.close()
 
-    def print_data(self, y_lim_epoch=[99.2, 99.6], x_lim_loss=[0,25], title="Training progression"):
+    def print_data(self, y_lim_epoch=[99.2, 99.6], x_lim_loss=[0, 25], title="Training progression"):
         _training_tries = len(self.data[self.EPOCHS])
         saved_epochs = []
         _size = 0
@@ -297,12 +297,17 @@ class TrainingStats():
         plt.show()
 
     def update_values(self, epoch, saved, loss, acc_train, acc_valid, end_time, verbose=1):
+        loss = list(loss) if type(loss).__module__ == np.__name__ else float(loss)
+        current_valid = np.sum(acc_valid)/len(acc_valid) if isinstance(acc_valid, list) else acc_valid
+        best_valid = np.sum(self.data[self.BEST])/len(self.data[self.BEST]) if isinstance(self.data[self.BEST], list) \
+            else self.data[self.BEST]
+
         self.data[self.EPOCHS][-1].append(epoch)
         self.data[self.SAVED][-1].append(epoch) if saved else None
         self.data[self.LOSS][-1].append(loss)
         self.data[self.ACC_T][-1].append(acc_train)
         self.data[self.ACC_V][-1].append(acc_valid)
-        self.data[self.BEST] = acc_valid if self.data[self.BEST] < acc_valid else self.data[self.BEST]
+        self.data[self.BEST] = acc_valid if best_valid < current_valid else self.data[self.BEST]
         self.data[self.TIME][-1].append(end_time)
         self.data[self.DATE] = datetime.now().strftime("%d_%m_%Y__%H_%M_%S")
 

@@ -2,6 +2,7 @@ import time
 from TFM.Networks.ModelManager import TrainingModel
 from TFM.Data.DataManager import DataManager
 from TFM.Statistics.StatsModel import TrainingStats
+import numpy as np
 
 '''
 This script executes the training of the network.
@@ -30,7 +31,7 @@ if __name__ == '__main__':
     end_epoch = start_epoch + 100
     learn_opt, learn_reg = 1e-3, 1e-2
     save_weights = True
-    min_acc = 99.59
+    min_acc = [99.59, 99.00]
     specific_weights = "synthetic_real"+id_copy
     weights_path = f'Weights/{model}/{specific_weights}_epoch'
     input_dims = (batch_size, 180, 320, 3)
@@ -42,7 +43,7 @@ if __name__ == '__main__':
     for epoch in range(start_epoch + 1, end_epoch + 1):
         # TRAINING
         start_time = time.time()
-        loss_value = 0
+        loss_value = np.zeros(2) if output_type == "reg+cls" else 0
         for idx in range(dm.batches_size["train"] - 1):
             data = dm.batch_x(idx, "train", color_space)
             labels = dm.batch_y(idx, "train")
@@ -61,11 +62,8 @@ if __name__ == '__main__':
         # Print and save the metrics
         end_time = round((time.time() - start_time) / 60, 2)
 
-        is_saved = False
         # Saves the weights of the model if it obtains the best result in validation
-        if (valid_acc > min_acc and valid_acc > ts.data["best"] and save_weights) or epoch == end_epoch:
-            is_saved = True
-            tm.nn.save_weights(f'{weights_path}_{epoch}')
+        is_saved = tm.save_best(ts.data["best"], valid_acc, min_acc, epoch, end_epoch, save_weights, weights_path)
 
-        ts.update_values(epoch, is_saved, float(loss_value), float(train_acc), float(valid_acc), end_time, verbose=1)
+        ts.update_values(epoch, is_saved, loss_value, train_acc, valid_acc, end_time, verbose=1)
 

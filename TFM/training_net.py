@@ -14,27 +14,28 @@ if __name__ == '__main__':
                   r'C:\Users\TTe_J\Downloads\17-17-05']
     labels = ["b", "y", "o_s", "o_b"]
     # labels = ["binary"]
-    # label_size = (720, 1280, len(labels)+1)
-    label_size = (180, 320, len(labels)+1)
-    # label_size = (513, 1025, len(labels)+1)
+    # label_size = (720, 1280, len(labels))
+    label_size = (180, 320, len(labels))
+    background = False
+    # label_size = (513, 1025, len(labels))
     batch_size = 8
     valid_size = .10
-    output_type = "reg+cls" # regression = reg, classification = cls, regression + classficiation = reg+cls
+    output_type = "reg" # regression = reg, classification = cls, regression + classficiation = reg+cls
 
-    dm = DataManager(inputs_rgb, labels, label_size, valid_size, batch_size, output_type)
+    dm = DataManager(inputs_rgb, labels, label_size, background, valid_size, batch_size, output_type)
 
     # Net Variables
     model = "Net_5"  # models = HelperNetV1, ..V2, ..V3, Net_0, .._1, .._2, .._3, .._4, .._5, MgNet_0
-    start_epoch = 0 # <= number epoch trained
-    id_copy = "_yuv_rc" # <= logs version? "" => main
+    start_epoch = 200 # <= number epoch trained
+    id_copy = "_yuv_r4" # <= logs version? "" => main
     color_space = 82 # <= bgr=None, lab=44, yuv=82, hsv=40, hsl=52
-    end_epoch = start_epoch + 100
+    end_epoch = start_epoch + 200
     learn_opt, learn_reg = 1e-3, 1e-2
     save_weights = True
-    min_acc = [99.59, 99.00]
+    min_acc = 98
     specific_weights = "synthetic_real"+id_copy
     weights_path = f'Weights/{model}/{specific_weights}_epoch'
-    input_dims = (batch_size, 180, 320, 3)
+    input_dims = (batch_size, label_size[0], label_size[1], 3)
 
     tm = TrainingModel(model, input_dims, weights_path, start_epoch, learn_opt, learn_reg, output_type)
 

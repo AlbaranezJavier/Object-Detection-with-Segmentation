@@ -116,6 +116,7 @@ class Mg_DOWN(keras.layers.Layer):
     def __init__(self, k_dim, output_channel, u_shape, j, v, k_reg=None, **kwargs):
         super(Mg_DOWN, self).__init__(**kwargs)
         self.v = v
+        self.j = j
         self.u_shape = u_shape
 
         # Data-feature mapping
@@ -149,7 +150,7 @@ class Mg_DOWN(keras.layers.Layer):
             u[0] = u[0] + b
 
         # Loop: IaR => Smoothing
-        for l in range(1, self.v):
+        for l in range(1, self.j):
             # - Interpolation and restriction
             u.append(self.bn(self.i[l-1](u[l-1]))) # i[l-1] is correct, is an array
             _a = self.bn_a(self.a[l](u[l]))
@@ -157,7 +158,7 @@ class Mg_DOWN(keras.layers.Layer):
 
             # Next level
             # - Smoothing
-            for i in range(3):
+            for i in range(self.v):
                 a = f[l] - self.bn_a(self.a[l](u[l]))
                 b = tf.nn.relu(self.bn(self.b[l][i](tf.nn.relu(a))))
                 u[l] = u[l] + b
@@ -174,7 +175,7 @@ class Mg_UP(keras.layers.Layer):
         self.a = Conv2D(filters=3, kernel_size=(k_dim, k_dim), strides=(1, 1), padding='SAME', kernel_regularizer=k_reg)
 
         # Feature extractor
-        self.b = [Conv2D(filters=5, kernel_size=(k_dim, k_dim), strides=(1, 1), padding='SAME', activation="relu",
+        self.b = [Conv2D(filters=5, kernel_size=(k_dim, k_dim), strides=(1, 1), padding='SAME',
                          kernel_regularizer=k_reg, name="b_up"+str(l)+str(i)) for i in range(self.v)]
 
         # Prolongator
@@ -217,10 +218,10 @@ class MgNet_0(Model):
         super(MgNet_0, self).__init__()
         # Variables
         l2 = L2(learn_reg)
-        self.mg_b = Mg_DOWN(k_dim=3, output_channel=5, u_shape=[batch, 513, 1025, 5], j=4, v=4, k_reg=l2)
-        self.mg_c1 = Mg_UP(k_dim=3, output_size=[batch, 129, 257, 5], l=3, v=4, k_reg=l2)
-        self.mg_c2 = Mg_UP(k_dim=3, output_size=[batch, 257, 513, 5], l=2, v=4, k_reg=l2)
-        self.mg_c3 = Mg_UP(k_dim=3, output_size=[batch, 513, 1025, 5], l=1, v=4, k_reg=l2)
+        self.mg_b = Mg_DOWN(k_dim=3, output_channel=5, u_shape=[batch, 513, 1025, 5], j=4, v=5, k_reg=l2)
+        self.mg_c1 = Mg_UP(k_dim=3, output_size=[batch, 129, 257, 5], l=3, v=5, k_reg=l2)
+        self.mg_c2 = Mg_UP(k_dim=3, output_size=[batch, 257, 513, 5], l=2, v=5, k_reg=l2)
+        self.mg_c3 = Mg_UP(k_dim=3, output_size=[batch, 513, 1025, 5], l=1, v=5, k_reg=l2)
         self.conv_softmax = Conv2D(filters=5, kernel_size=(1, 1), strides=(1, 1), padding='SAME', kernel_regularizer=l2,
                    activation="softmax")
 

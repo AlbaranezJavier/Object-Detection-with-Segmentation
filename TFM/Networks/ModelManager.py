@@ -139,13 +139,13 @@ class TrainingModel(ModelManager):
 
     # Training and validation steps
     def train(self, x, y):
-        if self.output_type == "reg" or self.output_type == "reg+cls":
+        if self.output_type == "reg+cls":
             return self._train_step_rc(x, y)
         else:
             return self._train_step(x, y)
 
     def valid(self, x, y):
-        if self.output_type == "reg" or self.output_type == "reg+cls":
+        if self.output_type == "reg+cls":
             return self._valid_step_rc(x, y)
         else:
             return self._valid_step(x, y)

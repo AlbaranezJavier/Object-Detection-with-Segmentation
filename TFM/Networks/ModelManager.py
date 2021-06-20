@@ -84,7 +84,7 @@ class TrainingModel(ModelManager):
         self.sets_channels = []
         self.worst50 = {}
         if output_type == "reg":
-            self._loss_fn = MeanSquaredError()
+            self._loss_fn = MeanAbsoluteError()
             self._valid_acc_metric = Accuracy()
             self._train_acc_metric = Accuracy()
         elif output_type == "reg+cls":

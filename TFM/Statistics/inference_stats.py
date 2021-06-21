@@ -16,14 +16,13 @@ if __name__ == '__main__':
     input_dims = (8, 180, 320, 3)
     model = "Net_5"  # <====================================================== models = HelperNetV1, Net_0, Net_1, Net_2
     output_type = "reg"  # regression = reg, classification = cls, regression + classficiation = reg+cls
-    start_epoch = 208  # <===================================================== numero de épocas que ya ha entrenado
+    start_epoch = 3643  # <===================================================== numero de épocas que ya ha entrenado
     color_space = 82 # <= bgr=None, lab=44, yuv=82, hsv=40, hsl=52
-    specific_weights = f"synthetic_real_yuv_r"
+    specific_weights = f"synthetic_yuv"
     weights_path = f'../Weights/{model}/{specific_weights}_epoch'
 
     # Data Variables
-    inputs_rgb = [r'C:\Users\TTe_J\Downloads\SyntheticConeDataset(1005)\RightImages',
-                  r'C:\Users\TTe_J\Downloads\17-17-05']
+    inputs_rgb = [r'C:\Users\TTe_J\Downloads\SyntheticConeDataset(1005)\RightImages']
     labels = ["b", "y", "o_s", "o_b"]
     label_size = (180, 320, len(labels))
     background = False
@@ -33,7 +32,7 @@ if __name__ == '__main__':
     dm = DataManager(inputs_rgb, labels, label_size, background, valid_size, batch_size, output_type)
     mm = ModelManager(model, input_dims, weights_path, start_epoch, output_type)
 
-    sm = InferenceStats(mm, dm, p)
+    sm = InferenceStats(mm, dm, output_type, p)
 
     if function[select_function] == function[1]:
         sm.one_example(example, verbose=verbose)

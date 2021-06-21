@@ -12,5 +12,3 @@ if __name__ == '__main__':
 
     pc = Perception(original_img_shape, nn_model, nn_epoch, nn_weights_path, data_saved_format, vs_on, ir_path)
     pc.run()
-
-q

@@ -380,54 +380,104 @@ def Net_4(inputs, batch, learn_reg=1e-2):
 
 def Net_5(inputs, batch, output_type, learn_reg=1e-2):
     # Variables
-    l1 = L1(learn_reg)
+    l2 = L2(learn_reg)
 
     # Left side = Li, Mid = M y right side = Ld
     # - Level 3, Li
     fixed_n3Li = Conv2DFixed("border", out_channels=3)(inputs)
     input_fixed = concatenate([fixed_n3Li, inputs], axis=3)
 
-    n3Li = Conv2D_NA(k_dim=3, output_channel=8, stride=1, padding="SAME", k_reg=l1)(input_fixed)
+    n3Li = Conv2D_NA(k_dim=3, output_channel=8, stride=1, padding="SAME", k_reg=l2)(input_fixed)
 
     # - Level 4, Li
     n4Li = Conv2DFixed("bilinear", out_channels=8)(n3Li)
     inputs_n4Li = tf.image.resize(input_fixed, [90, 160], antialias=False)
     n4Li = concatenate([n4Li, inputs_n4Li], axis=3)
 
-    n4Li = Conv2D_NA(k_dim=5, output_channel=32, stride=1, padding="SAME", k_reg=l1)(n4Li)
+    n4Li = Conv2D_NA(k_dim=5, output_channel=32, stride=1, padding="SAME", k_reg=l2)(n4Li)
 
     # - Level 5, Li
     n5Li = Conv2DFixed("bilinear", out_channels=32)(n4Li)
     inputs_n5Li = tf.image.resize(input_fixed, [45, 80], antialias=False)
     n5Li = concatenate([n5Li, inputs_n5Li], axis=3)
 
-    n5Li = Conv2D_NA(k_dim=5, output_channel=32, stride=1, padding="SAME", k_reg=l1)(n5Li)
+    n5Li = Conv2D_NA(k_dim=5, output_channel=32, stride=1, padding="SAME", k_reg=l2)(n5Li)
 
     # - Level 6, M
-    n6M = Conv2D_NA(k_dim=5, output_channel=64, stride=1, padding="SAME", k_reg=l1)(n5Li)
+    n6M = Conv2D_NA(k_dim=5, output_channel=64, stride=1, padding="SAME", k_reg=l2)(n5Li)
 
     # - Level 5, Ld
     n5Ld = concatenate([n5Li, n6M], axis=3)
-    n5Ld = Conv2D_NA(k_dim=5, output_channel=32, stride=1, padding="SAME", k_reg=l1)(n5Ld)
+    n5Ld = Conv2D_NA(k_dim=5, output_channel=32, stride=1, padding="SAME", k_reg=l2)(n5Ld)
     n5Ld = Conv2DFixed_Transpose("bilinear", [batch, 90, 160, 32])(n5Ld)
 
     # - Level 4, Ld
     n4Ld = concatenate([n4Li, n5Ld], axis=3)
-    n4Ld = Conv2D_NA(k_dim=5, output_channel=32, stride=1, padding="SAME", k_reg=l1)(n4Ld)
+    n4Ld = Conv2D_NA(k_dim=5, output_channel=32, stride=1, padding="SAME", k_reg=l2)(n4Ld)
     n4Ld = Conv2DFixed_Transpose("bilinear", [batch, 180, 320, 32])(n4Ld)
 
     # - Level 3, Ld
     n3Ld = concatenate([n3Li, n4Ld])
     if output_type == "reg":
-        n3Ld = Conv2D(filters=4, kernel_size=(1, 1), kernel_regularizer=l1, padding="SAME", activation="relu")(n3Ld)
+        n3Ld = Conv2D(filters=4, kernel_size=(1, 1), kernel_regularizer=l2, padding="SAME", activation="relu")(n3Ld)
     elif output_type == "reg+cls":
-        n3Ld_reg = Conv2D(filters=4, kernel_size=(1, 1), kernel_regularizer=l1, padding="SAME", activation="relu")(n3Ld)
-        n3Ld_cls = Conv2D(filters=1, kernel_size=(1, 1), kernel_regularizer=l1, padding="SAME", activation="softmax")(n3Ld)
+        n3Ld_reg = Conv2D(filters=4, kernel_size=(1, 1), kernel_regularizer=l2, padding="SAME", activation="relu")(n3Ld)
+        n3Ld_cls = Conv2D(filters=1, kernel_size=(1, 1), kernel_regularizer=l2, padding="SAME", activation="softmax")(n3Ld)
         return n3Ld_reg, n3Ld_cls
     else:
-        n3Ld = Conv2D(filters=5, kernel_size=(1, 1), kernel_regularizer=l1, padding="SAME", activation="softmax")(n3Ld)
+        n3Ld = Conv2D(filters=5, kernel_size=(1, 1), kernel_regularizer=l2, padding="SAME", activation="softmax")(n3Ld)
     return n3Ld
 
+def Net_6(inputs, batch, output_type, learn_reg=1e-2):
+    # Variables
+    l2 = L2(learn_reg)
+
+    # Left side = Li, Mid = M y right side = Ld
+    # - Level 3, Li
+    fixed_n3Li = Conv2DFixed("border", out_channels=3)(inputs)
+    input_fixed = concatenate([fixed_n3Li, inputs], axis=3)
+
+    n3Li = Conv2D_NA(k_dim=3, output_channel=16, stride=1, padding="SAME", k_reg=l2)(input_fixed)
+
+    # - Level 4, Li
+    n4Li = Conv2DFixed("bilinear", out_channels=16)(n3Li)
+    inputs_n4Li = tf.image.resize(input_fixed, [90, 160], antialias=False)
+    n4Li = concatenate([n4Li, inputs_n4Li], axis=3)
+
+    n4Li = Conv2D_NA(k_dim=5, output_channel=32, stride=1, padding="SAME", k_reg=l2)(n4Li)
+
+    # - Level 5, Li
+    n5Li = Conv2DFixed("bilinear", out_channels=32)(n4Li)
+    inputs_n5Li = tf.image.resize(input_fixed, [45, 80], antialias=False)
+    n5Li = concatenate([n5Li, inputs_n5Li], axis=3)
+
+    n5Li = Conv2D_NA(k_dim=5, output_channel=32, stride=1, padding="SAME", k_reg=l2)(n5Li)
+
+    # - Level 6, M
+    n6M = Conv2D_NA(k_dim=5, output_channel=64, stride=1, padding="SAME", k_reg=l2)(n5Li)
+
+    # - Level 5, Ld
+    n5Ld = concatenate([n5Li, n6M], axis=3)
+    n5Ld = Conv2D_NA(k_dim=5, output_channel=32, stride=1, padding="SAME", k_reg=l2)(n5Ld)
+    n5Ld = Conv2DFixed_Transpose("bilinear", [batch, 90, 160, 32])(n5Ld)
+
+    # - Level 4, Ld
+    n4Ld = concatenate([n4Li, n5Ld], axis=3)
+    n4Ld = Conv2D_NA(k_dim=5, output_channel=32, stride=1, padding="SAME", k_reg=l2)(n4Ld)
+    n4Ld = Conv2DFixed_Transpose("bilinear", [batch, 180, 320, 32])(n4Ld)
+
+    # - Level 3, Ld
+    n3Ld = concatenate([n3Li, n4Ld])
+    if output_type == "reg":
+        n3Ld = Conv2D(filters=16, kernel_size=(3, 3), kernel_regularizer=l2, padding="SAME", activation="relu")(n3Ld)
+        n3Ld = Conv2D(filters=4, kernel_size=(1, 1), kernel_regularizer=l2, padding="SAME", activation="relu")(n3Ld)
+    elif output_type == "reg+cls":
+        n3Ld_reg = Conv2D(filters=4, kernel_size=(1, 1), kernel_regularizer=l2, padding="SAME", activation="relu")(n3Ld)
+        n3Ld_cls = Conv2D(filters=1, kernel_size=(1, 1), kernel_regularizer=l2, padding="SAME", activation="softmax")(n3Ld)
+        return n3Ld_reg, n3Ld_cls
+    else:
+        n3Ld = Conv2D(filters=5, kernel_size=(1, 1), kernel_regularizer=l2, padding="SAME", activation="softmax")(n3Ld)
+    return n3Ld
 
 if __name__ == '__main__':
     path_img = glob.glob(r"C:\Users\TTe_J\Downloads\new_RGBs\vid_2_frame_1708.jpg")

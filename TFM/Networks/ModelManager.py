@@ -61,6 +61,8 @@ class ModelManager:
             self.nn = Model(inputs, Net_4(inputs, self.dim[0], learn_reg))
         elif self.model == "Net_5":
             self.nn = Model(inputs, Net_5(inputs, self.dim[0], self.output_type, learn_reg))
+        elif self.model == "Net_6":
+            self.nn = Model(inputs, Net_6(inputs, self.dim[0], self.output_type, learn_reg))
         elif self.model == "MgNet_0":
             self.nn = MgNet_0(self.dim[0], learn_reg)
             self.nn.build(input_shape=self.dim)
@@ -84,7 +86,7 @@ class TrainingModel(ModelManager):
         self.sets_channels = []
         self.worst50 = {}
         if output_type == "reg":
-            self._loss_fn = MeanAbsoluteError()
+            self._loss_fn = MeanSquaredError()
             self._valid_acc_metric = Accuracy()
             self._train_acc_metric = Accuracy()
         elif output_type == "reg+cls":

@@ -270,11 +270,17 @@ class DataManager():
         :param prediction: prediction [0,1]
         :return: masks
         """
-        img = np.ones([self.label_size[0], self.label_size[1], self.num_classes], dtype=np.uint8)
-        _idx_masks = np.argmax(prediction, axis=2)
-        for lab in range(self.label_size[2]):
-            img[..., lab] = ((_idx_masks == lab) * 1).astype(np.uint8)
-        return img
+
+        if self.output_type == "cls":
+            img = np.ones([self.label_size[0], self.label_size[1], self.num_classes], dtype=np.uint8)
+            _idx_masks = np.argmax(prediction, axis=2)
+            for lab in range(self.label_size[2]):
+                img[..., lab] = ((_idx_masks == lab) * 1).astype(np.uint8)
+            return img
+        elif self.output_type == "reg":
+            img = (prediction > 0)*1
+            return img
+
 
     @classmethod
     def mask2vgg(self, masks, labels, names, sizes, save_path=None):

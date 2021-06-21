@@ -12,7 +12,7 @@ class InferenceStats():
     """
     Analyze the neural network
     """
-    def __init__(self, mm, dm, p=0.01):
+    def __init__(self, mm, dm, output_type, p=0.01):
         """
         :param mm: ModelManager
         :param dm: DataManager
@@ -21,6 +21,9 @@ class InferenceStats():
         self.mm = mm
         self.dm = dm
         self.p = p
+        assert output_type == "cls" or output_type == "reg", \
+            "InferenceStats (24), output_type: it must be 'cls' or 'reg'"
+        self.output_type = output_type
 
     def one_example(self, example, type_set="valid", verbose=1):
         """
@@ -92,20 +95,20 @@ class InferenceStats():
                 counter_images += 1
                 _y_masks = self.dm.prediction2mask(_ys_hat[i])
 
-                for _lab in range(self.dm.label_size[2] - 1):
+                for _lab in range(self.dm.label_size[2]):
                     _tp, _fn, _fp, _tn = stats[_lab].cal_basic_stats(_y_masks[..., _lab], _example_ys[i, ..., _lab])
                     stats[_lab].update_cumulative_stats()
                     stats[self.dm.label_size[2]-1].add_cumulative_stats(_tp, _fn, _fp, _tn)
 
         # Show statistics
         print(f'Inference time: {time.time() - start}, counter images: {counter_images}')
-        for _lab in range(self.dm.label_size[2] - 1):
+        for _lab in range(self.dm.label_size[2]):
             print(f'\n =================> Statistics for label {self.dm.labels[_lab]} <=================')
             stats[_lab].cal_complex_stats("cumulative")
             stats[_lab].print_table("cumulative", tablefmt)
         print(f'\n =================> Statistics all <=================')
-        stats[self.dm.label_size[2] - 1].cal_complex_stats("cumulative")
-        stats[self.dm.label_size[2] - 1].print_table("cumulative", tablefmt)
+        stats[self.dm.label_size[2]].cal_complex_stats("cumulative")
+        stats[self.dm.label_size[2]].print_table("cumulative", tablefmt)
 
     def resume(self, model, type_set="valid", color_space="hsv"):
         """
@@ -114,7 +117,7 @@ class InferenceStats():
         :return: None
         """
         # Load stats
-        stats = [Metrics(self.p) for _lab in range(self.dm.label_size[2])]
+        stats = [Metrics(self.p) for _lab in range(self.dm.label_size[2]+1)]
 
         # Get prediction
         start = time.time()
@@ -127,11 +130,12 @@ class InferenceStats():
             for i in range(len(_ys_hat)):
                 counter_images += 1
                 _y_masks = self.dm.prediction2mask(_ys_hat[i])
+                _y_example = _example_ys[i] if self.output_type == "cls" else self.dm.prediction2mask(_example_ys[i])
 
-                for _lab in range(self.dm.label_size[2] - 1):
-                    _tp, _fn, _fp, _tn = stats[_lab].cal_basic_stats(_y_masks[..., _lab], _example_ys[i, ..., _lab])
+                for _lab in range(self.dm.label_size[2]):
+                    _tp, _fn, _fp, _tn = stats[_lab].cal_basic_stats(_y_masks[..., _lab], _y_example[..., _lab])
                     stats[_lab].update_cumulative_stats()
-                    stats[self.dm.label_size[2]-1].add_cumulative_stats(_tp, _fn, _fp, _tn)
+                    stats[self.dm.label_size[2]].add_cumulative_stats(_tp, _fn, _fp, _tn)
 
         # Show statistics
         print(f'Inference time: {time.time() - start}, counter images: {counter_images}')
@@ -140,19 +144,19 @@ class InferenceStats():
         prec = f'\n - Precision: '
         rec = f'\n - Recall: '
         f1 = f'\n - F1 score: '
-        for _lab in range(self.dm.label_size[2] - 1):
+        for _lab in range(self.dm.label_size[2]):
             stats[_lab].cal_complex_stats("cumulative")
             acc += f'{stats[_lab].stats["accuracy"]} ({self.dm.labels[_lab]}), '
             iou += f'{stats[_lab].stats["iou"]} ({self.dm.labels[_lab]}), '
             prec += f'{stats[_lab].stats["precision"]} ({self.dm.labels[_lab]}), '
             rec += f'{stats[_lab].stats["recall"]} ({self.dm.labels[_lab]}), '
             f1 += f'{stats[_lab].stats["f1"]} ({self.dm.labels[_lab]}), '
-        stats[self.dm.label_size[2] - 1].cal_complex_stats("cumulative")
-        acc += f'{stats[self.dm.label_size[2] - 1].stats["accuracy"]} (all) %'
-        iou += f'{stats[self.dm.label_size[2] - 1].stats["iou"]} (all) %'
-        prec += f'{stats[self.dm.label_size[2] - 1].stats["precision"]} (all) %'
-        rec += f'{stats[self.dm.label_size[2] - 1].stats["recall"]} (all) %'
-        f1 += f'{stats[self.dm.label_size[2] - 1].stats["f1"]} (all) %'
+        stats[self.dm.label_size[2]].cal_complex_stats("cumulative")
+        acc += f'{stats[self.dm.label_size[2]].stats["accuracy"]} (all) %'
+        iou += f'{stats[self.dm.label_size[2]].stats["iou"]} (all) %'
+        prec += f'{stats[self.dm.label_size[2]].stats["precision"]} (all) %'
+        rec += f'{stats[self.dm.label_size[2]].stats["recall"]} (all) %'
+        f1 += f'{stats[self.dm.label_size[2]].stats["f1"]} (all) %'
         print(f'Model {model}:')
         print(acc, iou, prec, rec, f1)
 

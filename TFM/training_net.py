@@ -24,11 +24,11 @@ if __name__ == '__main__':
     dm = DataManager(inputs_rgb, labels, label_size, background, valid_size, batch_size, output_type)
 
     # Net Variables
-    model = "Net_5"  # models = HelperNetV1, ..V2, ..V3, Net_0, .._1, .._2, .._3, .._4, .._5, MgNet_0
+    model = "Net_6"  # models = HelperNetV1, ..V2, ..V3, Net_0, .._1, .._2, .._3, .._4, .._5, MgNet_0
     start_epoch = 0 # <= number epoch trained
     id_copy = "_yuv" # <= logs version? "" => main
     color_space = 82 # <= bgr=None, lab=44, yuv=82, hsv=40, hsl=52
-    end_epoch = start_epoch + 1000
+    end_epoch = start_epoch + 4000
     learn_opt, learn_reg = 1e-3, 1e-2
     save_weights = True
     min_acc = 98

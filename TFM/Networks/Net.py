@@ -437,10 +437,10 @@ def Net_6(inputs, batch, output_type, learn_reg=1e-2):
     fixed_n3Li = Conv2DFixed("border", out_channels=3)(inputs)
     input_fixed = concatenate([fixed_n3Li, inputs], axis=3)
 
-    n3Li = Conv2D_NA(k_dim=3, output_channel=16, stride=1, padding="SAME", k_reg=l2)(input_fixed)
+    n3Li = Conv2D_NA(k_dim=3, output_channel=32, stride=1, padding="SAME", k_reg=l2)(input_fixed)
 
     # - Level 4, Li
-    n4Li = Conv2DFixed("bilinear", out_channels=16)(n3Li)
+    n4Li = Conv2DFixed("bilinear", out_channels=32)(n3Li)
     inputs_n4Li = tf.image.resize(input_fixed, [90, 160], antialias=False)
     n4Li = concatenate([n4Li, inputs_n4Li], axis=3)
 
@@ -469,7 +469,8 @@ def Net_6(inputs, batch, output_type, learn_reg=1e-2):
     # - Level 3, Ld
     n3Ld = concatenate([n3Li, n4Ld])
     if output_type == "reg":
-        n3Ld = Conv2D(filters=16, kernel_size=(3, 3), kernel_regularizer=l2, padding="SAME", activation="relu")(n3Ld)
+        n3Ld = Conv2D_NA(k_dim=5, output_channel=32, stride=1, padding="SAME", k_reg=l2)(n3Ld)
+        n3Ld = Conv2D_NA(k_dim=3, output_channel=16, stride=1, padding="SAME", k_reg=l2)(n3Ld)
         n3Ld = Conv2D(filters=4, kernel_size=(1, 1), kernel_regularizer=l2, padding="SAME", activation="relu")(n3Ld)
     elif output_type == "reg+cls":
         n3Ld_reg = Conv2D(filters=4, kernel_size=(1, 1), kernel_regularizer=l2, padding="SAME", activation="relu")(n3Ld)
@@ -481,12 +482,12 @@ def Net_6(inputs, batch, output_type, learn_reg=1e-2):
 
 if __name__ == '__main__':
     path_img = glob.glob(r"C:\Users\TTe_J\Downloads\new_RGBs\vid_2_frame_1708.jpg")
-    img = cv2.cvtColor(cv2.imread(path_img[0]), cv2.COLOR_BGR2HLS).astype(np.float32) / 255.
+    y_hat = cv2.cvtColor(cv2.imread(path_img[0]), cv2.COLOR_BGR2HLS).astype(np.float32) / 255.
     # model = Net_0(batch=1)
     model = Net_test()
     model.build(input_shape=(1, 720, 1280, 3))
     model.summary()
-    x = model(np.expand_dims(img, 0))
+    x = model(np.expand_dims(y_hat, 0))
     print(x.shape)
     cv2.imshow("h_conv", x.numpy()[0, ..., 0])
     cv2.waitKey(0)
@@ -494,10 +495,10 @@ if __name__ == '__main__':
     cv2.waitKey(0)
     cv2.imshow("v_conv", x.numpy()[0, ..., 2])
     cv2.waitKey(0)
-    cv2.imshow("h", img[...,0])
+    cv2.imshow("h", y_hat[..., 0])
     cv2.waitKey(0)
-    cv2.imshow("s", img[..., 1])
+    cv2.imshow("s", y_hat[..., 1])
     cv2.waitKey(0)
-    cv2.imshow("v", img[..., 2])
+    cv2.imshow("v", y_hat[..., 2])
     cv2.waitKey(0)
     cv2.destroyAllWindows()

@@ -12,18 +12,64 @@ class InferenceStats():
     """
     Analyze the neural network
     """
-    def __init__(self, mm, dm, output_type, p=0.01):
+    def __init__(self, im, dm, output_type, stats_type, p=0.01):
         """
-        :param mm: ModelManager
+        :param im: InferenceModel
         :param dm: DataManager
         :param p: margin of credibility
         """
-        self.mm = mm
+        self.im = im
         self.dm = dm
         self.p = p
+        self.stats_type = stats_type
+        assert self.stats_type == "det" or self.stats_type == "seg", \
+            "InferenceStatas, stats_type: stats_type must be 'det' or 'seg'"
+        self.output_type = output_type
         assert output_type == "cls" or output_type == "reg", \
             "InferenceStats (24), output_type: it must be 'cls' or 'reg'"
-        self.output_type = output_type
+
+    def _get_labels4det(self, y, lab):
+        counter = 0
+        while counter < len(y):
+            if y[counter][0] != lab:
+                y.pop(counter)
+                counter -= 1
+            counter += 1
+        return y
+
+    def _calc_metrics(self, type_set, color_space):
+        # Load stats
+        stats = [Metrics(self.p, self.stats_type) for _lab in range(self.dm.num_classes + 1)]
+
+        # Get prediction
+        start = time.time()
+        counter_images = 0
+        for idx in range(self.dm.batches_size[type_set] - 1):
+            _example_xs = self.dm.batch_x(idx, type_set, color_space)
+            _example_ys = self.dm.batch_y_bbox(idx, type_set) if self.stats_type == "det" else self.dm.batch_y(idx,
+                                                                                                               type_set)
+            _ys_hat = self.im.predict(_example_xs)
+
+            for i in range(len(_ys_hat)):
+                counter_images += 1
+                _y_example = _example_ys[i] if self.output_type == "cls" or self.stats_type == "det" else \
+                    self.dm.prediction2mask(_example_ys[i])
+
+                for _lab in range(self.dm.label_size[2]):
+                    if self.stats_type == "det":
+                        _y_label = self._get_labels4det(_ys_hat[i].copy(), _lab)
+                        _y_true = self._get_labels4det(_y_example.copy(), _lab)
+                        _tp, _fn, _fp, _tn, _correspondencies = stats[_lab].cal_stats(_y_label, _y_true)
+                    else:
+                        _tp, _fn, _fp, _tn, _correspondencies = stats[_lab].cal_stats(_ys_hat[i, ..., _lab],
+                                                                                      _y_example[..., _lab])
+                    stats[_lab].update_cumulative_stats()
+                    stats[self.dm.label_size[2]].add_cumulative_stats(_tp, _fn, _fp, _tn, _correspondencies)
+
+        # Show statistics
+        print(f'Inference time: {time.time() - start}, counter images: {counter_images}')
+
+        return stats
 
     def one_example(self, example, type_set="valid", verbose=1):
         """
@@ -38,10 +84,10 @@ class InferenceStats():
         example_y = self.dm.y_idx(example, type_set)
 
         # Load the model and weigths
-        nn = self.mm.load4inference()
+        nn = self.im.load4inference()
 
         # Load stats
-        sd = Metrics(self.p)
+        sd = Metrics(self.p, self.stats_type)
 
         # Get prediction
         start = time.time()
@@ -52,7 +98,7 @@ class InferenceStats():
         print(f'Inference time: {time.time() - start}')
         for _lab in range(self.dm.label_size[2]-1):
             print(f'\n =================> Statistics for label {self.dm.labels[_lab]} <=================')
-            sd.cal_basic_stats(y_masks[..., _lab], example_y[..., _lab])
+            sd.cal_stats(y_masks[..., _lab], example_y[..., _lab])
             sd.cal_complex_stats("basic")
             sd.print_table("basic")
             sd.update_cumulative_stats()
@@ -80,28 +126,9 @@ class InferenceStats():
         :param type_set: valid or train
         :return: None
         """
-        # Load stats
-        stats = [Metrics(self.p) for _lab in range(self.dm.label_size[2])]
-
-        # Get prediction
-        start = time.time()
-        counter_images = 0
-        for idx in range(self.dm.batches_size[type_set] - 1):
-            _example_xs = self.dm.batch_x(idx, type_set, color_space)
-            _example_ys = self.dm.batch_y(idx, type_set)
-            _ys_hat = self.mm.nn.predict(_example_xs)
-
-            for i in range(len(_ys_hat)):
-                counter_images += 1
-                _y_masks = self.dm.prediction2mask(_ys_hat[i])
-
-                for _lab in range(self.dm.label_size[2]):
-                    _tp, _fn, _fp, _tn = stats[_lab].cal_basic_stats(_y_masks[..., _lab], _example_ys[i, ..., _lab])
-                    stats[_lab].update_cumulative_stats()
-                    stats[self.dm.label_size[2]-1].add_cumulative_stats(_tp, _fn, _fp, _tn)
+        stats = self._calc_metrics(type_set, color_space)
 
         # Show statistics
-        print(f'Inference time: {time.time() - start}, counter images: {counter_images}')
         for _lab in range(self.dm.label_size[2]):
             print(f'\n =================> Statistics for label {self.dm.labels[_lab]} <=================')
             stats[_lab].cal_complex_stats("cumulative")
@@ -116,29 +143,9 @@ class InferenceStats():
         :param type_set: valid or train
         :return: None
         """
-        # Load stats
-        stats = [Metrics(self.p) for _lab in range(self.dm.label_size[2]+1)]
-
-        # Get prediction
-        start = time.time()
-        counter_images = 0
-        for idx in range(self.dm.batches_size[type_set] - 1):
-            _example_xs = self.dm.batch_x(idx, type_set, color_space)
-            _example_ys = self.dm.batch_y(idx, type_set)
-            _ys_hat = self.mm.nn.predict(_example_xs)
-
-            for i in range(len(_ys_hat)):
-                counter_images += 1
-                _y_masks = self.dm.prediction2mask(_ys_hat[i])
-                _y_example = _example_ys[i] if self.output_type == "cls" else self.dm.prediction2mask(_example_ys[i])
-
-                for _lab in range(self.dm.label_size[2]):
-                    _tp, _fn, _fp, _tn = stats[_lab].cal_basic_stats(_y_masks[..., _lab], _y_example[..., _lab])
-                    stats[_lab].update_cumulative_stats()
-                    stats[self.dm.label_size[2]].add_cumulative_stats(_tp, _fn, _fp, _tn)
+        stats = self._calc_metrics(type_set, color_space)
 
         # Show statistics
-        print(f'Inference time: {time.time() - start}, counter images: {counter_images}')
         acc = f' - Accuracy: '
         iou = f'\n - IoU: '
         prec = f'\n - Precision: '

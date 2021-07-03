@@ -207,6 +207,23 @@ class DataManager():
              self.Y[step][self.batches[step][idx]:self.batches[step][idx + 1]]]
         return np.array(y)
 
+    def batch_y_bbox(self, idx, step):
+        """
+        Load batch Y
+        :param idx: index of batch
+        :param step: could be train or valid
+        :return: array of labels
+        """
+        bboxs = []
+        for labels in self.Y[step][self.batches[step][idx]:self.batches[step][idx + 1]]:
+            bbox = []
+            for c in range(len(labels)):
+                for polygon in labels[c]:
+                    _x, _y, _w, _h = cv2.boundingRect(polygon)
+                    bbox.append([c, [_x, _y], [_x+_w, _y+_h]])
+            bboxs.append(bbox)
+        return bboxs
+
     def x_idx(self, idx, step):
         """
         Get one example by index
@@ -261,7 +278,7 @@ class DataManager():
             zeros = cv2.resize(zeros, (self.label_size[1], self.label_size[0]), cv2.INTER_NEAREST)
             img[:, :, lab] = zeros.copy()
             if self.background:
-                img[:, :, self.num_classes] *= np.logical_not(zeros)
+                img[:, :, self.num_classes-1] *= np.logical_not(zeros)
         return img
 
     def prediction2mask(self, prediction):

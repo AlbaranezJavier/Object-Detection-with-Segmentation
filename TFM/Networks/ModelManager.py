@@ -14,10 +14,12 @@ import matplotlib.pyplot as plt
 This script contains all the necessary methods for training and inference processes.
 '''
 
+
 class ModelManager:
     """
     This class manages the neural models
     """
+
     def __init__(self, model, dim, path_weights, start_epoch, output_type, learn_reg=1e-3, verbose=1):
         self.model = model
         self.dim = dim
@@ -77,6 +79,7 @@ class ModelManager:
 
         return self.nn
 
+
 class TrainingModel(ModelManager):
     def __init__(self, model, dim, path_weights, start_epoch, learn_opt, learn_reg, output_type, verbose=1):
         super().__init__(model, dim, path_weights, start_epoch, output_type, learn_reg, verbose)
@@ -126,14 +129,13 @@ class TrainingModel(ModelManager):
         else:
             return False
 
-
     # Metrics
     def get_acc(self, type):
         acc_metrics = self._train_acc_metric if type == "train" else self._valid_acc_metric
         if isinstance(acc_metrics, list):
             acc = []
             for acc_metric in acc_metrics:
-                acc.append(float(acc_metric.result()*100.))
+                acc.append(float(acc_metric.result() * 100.))
                 acc_metric.reset_states()
             return acc
         else:
@@ -170,7 +172,7 @@ class TrainingModel(ModelManager):
         with tf.GradientTape() as tape:
             reg, cls = self.nn(x, training=True)
             targets = [y[:, :, :, self.sets_channels[0][0]:self.sets_channels[0][1]],
-                      y[:, :, :, self.sets_channels[1][0]:self.sets_channels[1][1]]]
+                       y[:, :, :, self.sets_channels[1][0]:self.sets_channels[1][1]]]
             losses = [l(t, o) for l, o, t in zip(self._loss_fn, [reg, cls], targets)]
         grads = tape.gradient(losses, self.nn.trainable_weights)
         self.optimizer.apply_gradients(zip(grads, self.nn.trainable_weights))
@@ -187,3 +189,134 @@ class TrainingModel(ModelManager):
         reg, cls = self.nn(x, training=False)
         self._valid_acc_metric[0].update_state(y[:, :, :, self.sets_channels[0][0]:self.sets_channels[0][1]], reg)
         self._valid_acc_metric[1].update_state(y[:, :, :, self.sets_channels[1][0]:self.sets_channels[1][1]], cls)
+
+
+class InferenceModel(ModelManager):
+    def __init__(self, model, dim, path_weights, start_epoch, output_type, inference_type, original_size=None,
+                 min_area=None, neighbours=None):
+        super().__init__(model, dim, path_weights, start_epoch, output_type)
+        self._inference_type = inference_type
+        assert self._inference_type == "bbox4seg" or self._inference_type == "bbox4reg" or \
+               self._inference_type == "mask4reg" or self._inference_type == "mask4seg", \
+            "InferenceModel, init: it must be 'bbox4seg', 'bbox4reg', 'mask4reg' or 'mask4seg'."
+        self.predict = self._inference_selector()
+
+        if self._inference_type == "bbox4reg" or self._inference_type == "bbox4seg":
+            assert len(original_size) == 3, "InferenceModel, original_size: must be [x,x,x] shape"
+            self._scale2original_size = [original_size[0]/dim[1], original_size[1]/dim[2]]
+            assert isinstance(min_area, int) and min_area >= 0, "InferenceModel, min_area: must be an int and positive"
+            self._min_area = min_area
+            assert isinstance(neighbours, int) and neighbours >= 0, \
+                "InferenceModel, neightbours: must be an int and positive"
+            self._neighbours = neighbours
+
+    def _inference_selector(self):
+        if self._inference_type == "bbox4seg":
+            return self._bbox_inference4seg
+        elif self._inference_type == "bbox4reg":
+            return self._bbox_inference4reg
+        elif self._inference_type == "mask4seg":
+            return self._mask_inference4seg
+        elif self._inference_type == "mask4reg":
+            return self._mask_inference4reg
+
+    def _bbox_inference4reg(self, input):
+        y_hat = self.nn.predict(input)
+        bboxs = []
+        for i in range(y_hat.shape[0]):
+            bboxs_dict = {}
+            search_y = [False] * y_hat.shape[2]
+            for y in range(1, y_hat.shape[1] - 1):
+                search_x = False
+                for x in range(1, y_hat.shape[2] - 1):
+                    c, find = 0, False
+                    while c < y_hat.shape[3] and not find:
+                        if y_hat[i, y, x, c] > 0:
+                            x_diff = y_hat[i, y, x, c] - y_hat[i, y, x - 1, c]
+                            y_diff = y_hat[i, y, x, c] - y_hat[i, y - 1, x, c]
+                            if x_diff > 0 and y_diff > 0 and search_x is False and search_y[x] is False:
+                                search_x, search_y[x], find = True, True, True
+                                bboxs_dict = self._search(y, x, c, y_hat[i, :, :, c], bboxs_dict)
+
+                            if search_x and x_diff <= 0:
+                                search_x = False
+                            if search_y[x] and y_diff <= 0:
+                                search_y[x] = False
+                        c += 1
+            bboxs.append(list(bboxs_dict.values()))
+        return bboxs
+
+    def _search(self, y, x, c, img_c, bboxs):
+        center = self._get_max(y, x, img_c)
+        if center != [y, x]:
+            target_scaled = [round(center[1]*self._scale2original_size[1]),
+                             round(center[0]*self._scale2original_size[0]), c]
+            target_str = str(target_scaled)
+            if bboxs.get(target_str) is None:
+                bbox = self._bbox_estimation(center, img_c)
+                if np.prod(bbox[2:4]) > self._min_area:
+                    bboxs[target_str] = [c, bbox[0:2], [bbox[0]+bbox[2], bbox[1]+bbox[3]]]
+        return bboxs
+
+    def _get_max(self, y, x, img_c):
+        candidate = [img_c[y, x], y, x]
+        max_found = True
+        _y, _x = y - 1, x - 1
+        while max_found:
+            max_found = False
+            for f in range(_y, _y + self._neighbours):
+                for c in range(_x, _x + self._neighbours):
+                    if img_c[f, c] > candidate[0]:
+                        max_found = True
+                        candidate = [img_c[f, c], f, c]
+                        _y, _x = f-1 if f-1 < img_c.shape[0]-3 else img_c.shape[0]-3, c-1
+        return candidate[1:3]
+
+    def _bbox_estimation(self, center, img_c):
+        y, x = center
+        w_mid = round(img_c[y, x] / (img_c[y, x]-img_c[y, x-2]))
+        h_mid = round(img_c[y, x] / (img_c[y, x]-img_c[y-2, x]))
+        w = w_mid*2 + 1
+        h = h_mid*2 + 1
+
+        # Scale to original
+        x = round((x-w_mid)*self._scale2original_size[1])
+        y = round((y-h_mid)*self._scale2original_size[0])
+        w = round(w*self._scale2original_size[1])
+        h = round(h*self._scale2original_size[0])
+
+        return [x, y, w, h]
+
+    def _bbox_inference4seg(self, input):
+        y_hat = self.nn.predict(input)
+        all_bboxs = []
+        for i in range(y_hat.shape[0]):
+            mask = np.argmax(y_hat[i], axis=2)
+            bboxs = []
+            for c in range(y_hat.shape[3] - 1):
+                countours, _ = cv2.findContours(np.uint8((mask == c) * 1), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                for countour in countours:
+                    x, y, w, h = cv2.boundingRect(countour)
+                    if w*h > self._min_area:
+                        p1 = [int(x * self._scale2original_size[1]), int(y * self._scale2original_size[0])]
+                        p2 = [int((x+w) * self._scale2original_size[1]), int((y+h) * self._scale2original_size[0])]
+                        bboxs.append([c, p1, p2])
+            all_bboxs.append(bboxs)
+        return all_bboxs
+
+    def _mask_inference4seg(self, input):
+        y_hat = self.nn.predict(input)
+        img = np.ones_like(y_hat, dtype=np.uint8)
+        for i in range(y_hat.shape[0]):
+            _idx_masks = np.argmax(y_hat[i], axis=2)
+            for lab in range(y_hat.shape[3]):
+                img[i, ..., lab] = ((_idx_masks == lab) * 1).astype(np.uint8)
+        return img
+
+    def _mask_inference4reg(self, input):
+        y_hat = self.nn.predict(input)
+        img = np.ones_like(y_hat, dtype=np.uint8)
+        for i in range(y_hat.shape[0]):
+            for c in range(y_hat.shape[3]):
+                img[i, ..., c] = ((y_hat[i, ..., c] > 0) * 1).astype(np.uint8)
+        return img

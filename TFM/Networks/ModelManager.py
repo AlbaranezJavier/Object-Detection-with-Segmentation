@@ -8,6 +8,7 @@ from TFM.Networks.Net import *
 from TFM.Networks.HNet import *
 from TFM.Networks.MgNet import *
 
+import time
 import matplotlib.pyplot as plt
 
 '''

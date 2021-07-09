@@ -2,9 +2,9 @@ from TFM.Statistics.StatsModel import TrainingStats
 
 if __name__ == '__main__':
     # Variables
-    model_name = "Net_3"
-    id_copy = "_yuv_resize"
-    specific_weights = "synthetic_real"
+    model_name = "Net_5"
+    id_copy = "_cls_yuv"
+    specific_weights = "synthetic_real_cls_yuv_epoch_123"
 
     ts = TrainingStats(model_name+id_copy, specific_weights)
 

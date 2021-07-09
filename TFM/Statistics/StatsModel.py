@@ -287,8 +287,8 @@ class TrainingStats():
         fig, ax = plt.subplots(2)
         for j in range(_training_tries):
             ax[0].plot(self.data[self.EPOCHS][j], self.data[self.LOSS][j], 'k')
-            ax[0].set_xlim(x_lim_loss)
-            ax[0].set_xlabel("Loss")
+            # ax[0].set_xlim(x_lim_loss)
+            ax[0].set_ylabel("Loss")
             ax[0].set_title(title)
 
         lines = []
@@ -300,6 +300,7 @@ class TrainingStats():
                     ax[1].plot(xs[i][j], ys[i][j], colors[i])
                 ax[1].set_ylim(y_lim_epoch)
                 ax[1].set_xlabel("Epochs")
+                ax[1].set_ylabel("Accuracy")
                 ax[1].legend()
 
 

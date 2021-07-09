@@ -65,7 +65,7 @@ class Metrics:
         for g in range(len(gt)):
             corresponds.append([])
             for p in range(len(predicted)):
-                if predicted[p][0] == gt[g][0]:
+                if predicted[p][0] is None or predicted[p][0] == gt[g][0]:
                     iou = self._iou4det(predicted[p][1], predicted[p][2], gt[g][1], gt[g][2])
                     if iou > 0:
                         corresponds[g].append([p, iou])
@@ -275,10 +275,14 @@ class Metrics:
         self.stats["pp"] = self.basic_stats[basic_type]["tp"] + self.basic_stats[basic_type]["fp"]
 
     def bias(self, basic_type):
-        self.stats["bias"] = round((self.stats["pp"] / self.stats["population"]) * 100, 2)
-        _temp = proportion_confint(count=self.stats["pp"], nobs=self.stats["population"],
-                                   alpha=self.confidence_interval_p, method="beta")
-        self.stats["i_bias"] = f'[{round(_temp[0] * 100, 2)} - {round(_temp[1] * 100, 2)}]'
+        try:
+            self.stats["bias"] = round((self.stats["pp"] / self.stats["population"]) * 100, 2)
+            _temp = proportion_confint(count=self.stats["pp"], nobs=self.stats["population"],
+                                       alpha=self.confidence_interval_p, method="beta")
+            self.stats["i_bias"] = f'[{round(_temp[0] * 100, 2)} - {round(_temp[1] * 100, 2)}]'
+        except ZeroDivisionError:
+            self.stats["bias"] = 0
+            self.stats["i_bias"] = f'[{0} - {0}]'
 
     def predicted_negative(self, basic_type):
         if self.stats_type == "det":
@@ -287,10 +291,14 @@ class Metrics:
             self.stats["pn"] = self.basic_stats[basic_type]["fn"] + self.basic_stats[basic_type]["tn"]
 
     def inverse_bias(self, basic_type):
-        self.stats["ib"] = round((self.stats["pn"] / self.stats["population"]) * 100, 2)
-        _temp = proportion_confint(count=self.stats["pn"], nobs=self.stats["population"],
-                                   alpha=self.confidence_interval_p, method="beta")
-        self.stats["i_ib"] = f'[{round(_temp[0] * 100, 2)} - {round(_temp[1] * 100, 2)}]'
+        try:
+            self.stats["ib"] = round((self.stats["pn"] / self.stats["population"]) * 100, 2)
+            _temp = proportion_confint(count=self.stats["pn"], nobs=self.stats["population"],
+                                       alpha=self.confidence_interval_p, method="beta")
+            self.stats["i_ib"] = f'[{round(_temp[0] * 100, 2)} - {round(_temp[1] * 100, 2)}]'
+        except ZeroDivisionError:
+            self.stats["ib"] = 0
+            self.stats["i_ib"] = f'[{0} - {0}]'
 
     def real_positive(self, basic_type):
         self.stats["rp"] = self.basic_stats[basic_type]["tp"] + self.basic_stats[basic_type]["fn"]
@@ -322,10 +330,14 @@ class Metrics:
             self.stats["lr+"] = 0
 
     def prevalence(self, basic_type):
-        self.stats["prevalence"] = round((self.stats["rp"] / self.stats["population"]) * 100, 2)
-        _temp = proportion_confint(count=self.stats["rp"], nobs=self.stats["population"],
-                                   alpha=self.confidence_interval_p, method="beta")
-        self.stats["i_prevalence"] = f'[{round(_temp[0] * 100, 2)} - {round(_temp[1] * 100, 2)}]'
+        try:
+            self.stats["prevalence"] = round((self.stats["rp"] / self.stats["population"]) * 100, 2)
+            _temp = proportion_confint(count=self.stats["rp"], nobs=self.stats["population"],
+                                       alpha=self.confidence_interval_p, method="beta")
+            self.stats["i_prevalence"] = f'[{round(_temp[0] * 100, 2)} - {round(_temp[1] * 100, 2)}]'
+        except ZeroDivisionError:
+            self.stats["prevalence"] = 0
+            self.stats["i_prevalence"] = f'[{0} - {0}]'
 
     def precision(self, basic_type):
         try:
@@ -338,10 +350,14 @@ class Metrics:
             self.stats["i_precision"] = f'[{0} - {0}]'
 
     def hit_rate(self, basic_type):
-        self.stats["performance"] = round((self.basic_stats[basic_type]["tp"] / self.stats["population"]) * 100, 2)
-        _temp = proportion_confint(count=self.basic_stats[basic_type]["tp"], nobs=self.stats["population"],
-                                   alpha=self.confidence_interval_p, method="beta")
-        self.stats["i_performance"] = f'[{round(_temp[0] * 100, 2)} - {round(_temp[1] * 100, 2)}]'
+        try:
+            self.stats["performance"] = round((self.basic_stats[basic_type]["tp"] / self.stats["population"]) * 100, 2)
+            _temp = proportion_confint(count=self.basic_stats[basic_type]["tp"], nobs=self.stats["population"],
+                                       alpha=self.confidence_interval_p, method="beta")
+            self.stats["i_performance"] = f'[{round(_temp[0] * 100, 2)} - {round(_temp[1] * 100, 2)}]'
+        except ZeroDivisionError:
+            self.stats["performance"] = 0
+            self.stats["i_performance"] = f'[{0} - {0}]'
 
     def false_negative_accuracy(self, basic_type):
         try:
@@ -354,10 +370,14 @@ class Metrics:
             self.stats["i_fna"] = f'[{0} - {0}]'
 
     def incorrect_rejection_rate(self, basic_type):
-        self.stats["irr"] = round((self.basic_stats[basic_type]["fn"] / self.stats["population"]) * 100, 2)
-        _temp = proportion_confint(count=self.basic_stats[basic_type]["fn"], nobs=self.stats["population"],
-                                   alpha=self.confidence_interval_p, method="beta")
-        self.stats["i_irr"] = f'[{round(_temp[0] * 100, 2)} - {round(_temp[1] * 100, 2)}]'
+        try:
+            self.stats["irr"] = round((self.basic_stats[basic_type]["fn"] / self.stats["population"]) * 100, 2)
+            _temp = proportion_confint(count=self.basic_stats[basic_type]["fn"], nobs=self.stats["population"],
+                                       alpha=self.confidence_interval_p, method="beta")
+            self.stats["i_irr"] = f'[{round(_temp[0] * 100, 2)} - {round(_temp[1] * 100, 2)}]'
+        except ZeroDivisionError:
+            self.stats["irr"] = 0
+            self.stats["i_irr"] = f'[{0} - {0}]'
 
     def negative_likelihood_ratio(self, basic_type):
         try:
@@ -402,10 +422,14 @@ class Metrics:
             self.stats["dor"] = 0
 
     def null_error_rate(self, basic_type):
-        self.stats["ner"] = round((self.stats["rn"] / self.stats["population"]) * 100, 2)
-        _temp = proportion_confint(count=self.stats["rn"], nobs=self.stats["population"],
-                                   alpha=self.confidence_interval_p, method="beta")
-        self.stats["i_ner"] = f'[{round(_temp[0] * 100, 2)} - {round(_temp[1] * 100, 2)}]'
+        try:
+            self.stats["ner"] = round((self.stats["rn"] / self.stats["population"]) * 100, 2)
+            _temp = proportion_confint(count=self.stats["rn"], nobs=self.stats["population"],
+                                       alpha=self.confidence_interval_p, method="beta")
+            self.stats["i_ner"] = f'[{round(_temp[0] * 100, 2)} - {round(_temp[1] * 100, 2)}]'
+        except ZeroDivisionError:
+            self.stats["ner"] = 0
+            self.stats["i_ner"] = f'[{0} - {0}]'
 
     def false_discovery_rate(self, basic_type):
         try:
@@ -418,10 +442,14 @@ class Metrics:
             self.stats["i_fdr"] = f'[{0} - {0}]'
 
     def delivered_error_rate(self, basic_type):
-        self.stats["der"] = round((self.basic_stats[basic_type]["fp"] / self.stats["population"]) * 100, 2)
-        _temp = proportion_confint(count=self.basic_stats[basic_type]["fp"], nobs=self.stats["population"],
-                                   alpha=self.confidence_interval_p, method="beta")
-        self.stats["i_der"] = f'[{round(_temp[0] * 100, 2)} - {round(_temp[1] * 100, 2)}]'
+        try:
+            self.stats["der"] = round((self.basic_stats[basic_type]["fp"] / self.stats["population"]) * 100, 2)
+            _temp = proportion_confint(count=self.basic_stats[basic_type]["fp"], nobs=self.stats["population"],
+                                       alpha=self.confidence_interval_p, method="beta")
+            self.stats["i_der"] = f'[{round(_temp[0] * 100, 2)} - {round(_temp[1] * 100, 2)}]'
+        except ZeroDivisionError:
+            self.stats["der"] = 0
+            self.stats["i_der"] = f'[{0} - {0}]'
 
     def inverse_precision(self, basic_type):
         if self.stats_type == "det":
@@ -490,9 +518,13 @@ class Metrics:
                 self.stats["i_correlation"] = f'[{0} - {0}]'
 
     def probability_random_agreement(self, basic_type):
-        self.stats["pra"] = round(
-            ((self.stats["pp"] * self.stats["rp"] + self.stats["pn"] * self.stats["rn"]) /
-             self.stats["population"] ** 2) * 100, 2)
+        try:
+            self.stats["pra"] = round(
+                ((self.stats["pp"] * self.stats["rp"] + self.stats["pn"] * self.stats["rn"]) /
+                 self.stats["population"] ** 2) * 100, 2)
+        except ZeroDivisionError:
+            self.stats["pra"] = 0
+            self.stats["i_pra"] = f'[{0} - {0}]'
 
     def markedness(self, basic_type):
         self.stats["markedness"] = round((self.stats["precision"] - self.stats["fna"]), 2)
@@ -539,13 +571,17 @@ class Metrics:
             self.stats["ck"] = 0
 
     def missclassification_rate(self, basic_type):
-        self.stats["mr"] = round((
-                                         (self.basic_stats[basic_type]["fp"] + self.basic_stats[basic_type]["fn"]) /
-                                         self.stats["population"]) * 100, 2)
-        _temp = proportion_confint(count=self.basic_stats[basic_type]["fp"] + self.basic_stats[basic_type]["fn"],
-                                   nobs=self.stats["population"],
-                                   alpha=self.confidence_interval_p, method="beta")
-        self.stats["i_mr"] = f'[{round(_temp[0] * 100, 2)} - {round(_temp[1] * 100, 2)}]'
+        try:
+            self.stats["mr"] = round((
+                                             (self.basic_stats[basic_type]["fp"] + self.basic_stats[basic_type]["fn"]) /
+                                             self.stats["population"]) * 100, 2)
+            _temp = proportion_confint(count=self.basic_stats[basic_type]["fp"] + self.basic_stats[basic_type]["fn"],
+                                       nobs=self.stats["population"],
+                                       alpha=self.confidence_interval_p, method="beta")
+            self.stats["i_mr"] = f'[{round(_temp[0] * 100, 2)} - {round(_temp[1] * 100, 2)}]'
+        except ZeroDivisionError:
+            self.stats["mr"] = 0
+            self.stats["i_mr"] = f'[{0} - {0}]'
 
     def f1_score(self, basic_type):
         try:

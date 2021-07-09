@@ -85,11 +85,11 @@ class Conv2D_NA(keras.layers.Layer):
 class Net_test(Model):
     def __init__(self):
         super(Net_test, self).__init__()
-        # self.l_720 = Conv2DFixed("border", 3)
+        self.l_720 = Conv2DFixed("border", 3)
         # self.l_720 = Conv2DFixed("bilinear", 3)
         # self.d_720 = Conv2DFixed_Transpose("bilinear", [1, 720, 1280, 3])
         # self.l_720 = Conv2DFixed("linear", 3)
-        self.l_720 = Conv2DFixed("average", 3)
+        # self.l_720 = Conv2DFixed("average", 3)
 
     def call(self, inputs):
         x = self.l_720(inputs)
@@ -425,7 +425,7 @@ def Net_5(inputs, batch, output_type, learn_reg=1e-2):
         n3Ld_cls = Conv2D(filters=1, kernel_size=(1, 1), kernel_regularizer=l2, padding="SAME", activation="softmax")(n3Ld)
         return n3Ld_reg, n3Ld_cls
     else:
-        n3Ld = Conv2D(filters=5, kernel_size=(1, 1), kernel_regularizer=l2, padding="SAME", activation="softmax")(n3Ld)
+        n3Ld = Conv2D(filters=2, kernel_size=(1, 1), kernel_regularizer=l2, padding="SAME", activation="softmax")(n3Ld)
     return n3Ld
 
 def Net_6(inputs, batch, output_type, learn_reg=1e-2):
@@ -481,24 +481,30 @@ def Net_6(inputs, batch, output_type, learn_reg=1e-2):
     return n3Ld
 
 if __name__ == '__main__':
-    path_img = glob.glob(r"C:\Users\TTe_J\Downloads\new_RGBs\vid_2_frame_1708.jpg")
-    y_hat = cv2.cvtColor(cv2.imread(path_img[0]), cv2.COLOR_BGR2HLS).astype(np.float32) / 255.
+    import matplotlib.pyplot as plt
+    path_img = r"C:\Users\TTe_J\Downloads\MIT_DATASET\Images\vid_2_frame_1708.jpg"
+    y_hat = cv2.cvtColor(cv2.imread(path_img), cv2.COLOR_BGR2YUV).astype(np.float32) / 255.
     # model = Net_0(batch=1)
     model = Net_test()
     model.build(input_shape=(1, 720, 1280, 3))
     model.summary()
     x = model(np.expand_dims(y_hat, 0))
     print(x.shape)
-    cv2.imshow("h_conv", x.numpy()[0, ..., 0])
-    cv2.waitKey(0)
-    cv2.imshow("s_conv", x.numpy()[0, ..., 1])
-    cv2.waitKey(0)
-    cv2.imshow("v_conv", x.numpy()[0, ..., 2])
-    cv2.waitKey(0)
-    cv2.imshow("h", y_hat[..., 0])
-    cv2.waitKey(0)
-    cv2.imshow("s", y_hat[..., 1])
-    cv2.waitKey(0)
-    cv2.imshow("v", y_hat[..., 2])
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    plt.imshow(np.abs(x.numpy()[0, ..., 0]), cmap="gray")
+    plt.title("y_border")
+    plt.show()
+    plt.imshow(np.abs(x.numpy()[0, ..., 1]), cmap="gray")
+    plt.title("u_border")
+    plt.show()
+    plt.imshow(np.abs(x.numpy()[0, ..., 2]), cmap="gray")
+    plt.title("v_border")
+    plt.show()
+    plt.imshow(y_hat[..., 0], cmap="gray")
+    plt.title("y")
+    plt.show()
+    plt.imshow(y_hat[..., 1], cmap="gray")
+    plt.title("u")
+    plt.show()
+    plt.imshow(y_hat[..., 2], cmap="gray")
+    plt.title("v")
+    plt.show()

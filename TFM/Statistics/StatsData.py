@@ -124,7 +124,7 @@ class StatsData:
             plt.show()
 
 if __name__ == '__main__':
-    paths_json = [r"C:\Users\TTe_J\Downloads\17-17-05\jsons\train.json",
-                  r"C:\Users\TTe_J\Downloads\SyntheticConeDataset(1005)\RightImages\jsons\train.json"]
+    # paths_json = [r"C:\Users\TTe_J\Downloads\17-17-05\jsons\valid_set.json"]
+    paths_json = [r"C:\Users\TTe_J\Downloads\SyntheticConeDataset(1005)\RightImages\jsons\valid_set.json"]
     sd = StatsData(paths_json)
     sd.analyze(verbose=1)

@@ -48,7 +48,7 @@ if __name__ == '__main__':
             for cls in y_data[i]:
                 for polygon in cls:
                     x, y, w, h = cv2.boundingRect(polygon)
-                    row += f'"[{x},{y},{w},{h}]",'
+                    row += f'"[{x},{y},{h},{w}]",'
             row += ",\n"
             writer.write(row)
     writer.close()
@@ -73,7 +73,7 @@ if __name__ == '__main__':
             for cls in y_data[i]:
                 for polygon in cls:
                     x, y, w, h = cv2.boundingRect(polygon)
-                    row += f'"[{x},{y},{w},{h}]",'
+                    row += f'"[{x},{y},{h},{w}]",'
             row += ",\n"
             writer.write(row)
     writer.close()

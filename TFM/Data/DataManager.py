@@ -1,4 +1,4 @@
-import os, json, cv2, shutil, glob
+import os, json, cv2, shutil, glob, time
 import numpy as np
 from sklearn.model_selection import train_test_split
 
@@ -164,16 +164,22 @@ class DataManager():
         _unlabeled = []
         names = []
         sizes = []
+        times = []
         for p in _paths:
             if len(_unlabeled) >= limit:
                 break
             _filename = p.split('\\')[-1]
             if _filename not in _labeled:
-                _img = cv2.resize(cv2.imread(p), (img_size[1], img_size[0]))
+                img = cv2.imread(p)
+                start = time.time()
+                _img = cv2.resize(img, (img_size[1], img_size[0]))
                 _unlabeled.append(cv2.cvtColor(_img, color_space).astype('float32') / 255.)
+                times.append(time.time()-start)
                 names.append(_filename)
                 sizes.append(os.stat(p).st_size)
                 shutil.copyfile(p, path_images_dest + "/" + _filename)
+        print(times)
+        print("Mean time preprocces: ", np.mean(times))
         unlabeled = np.array(_unlabeled)
         return unlabeled, names, sizes
 

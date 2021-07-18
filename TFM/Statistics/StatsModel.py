@@ -46,8 +46,8 @@ class InferenceStats():
         counter_images = 0
         for idx in range(self.dm.batches_size[type_set] - 1):
             _example_xs = self.dm.batch_x(idx, type_set, color_space)
-            _example_ys = self.dm.batch_y_bbox(idx, type_set) if self.stats_type == "det" else self.dm.batch_y(idx,
-                                                                                                               type_set)
+            _example_ys = self.dm.batch_y_bbox(idx, type_set) if self.stats_type == "det" else self.dm.batch_y(idx,type_set)
+
             _ys_hat = self.im.predict(_example_xs)
 
             for i in range(len(_ys_hat)):
@@ -59,12 +59,69 @@ class InferenceStats():
                     if self.stats_type == "det":
                         _y_label = self._get_labels4det(_ys_hat[i].copy(), _lab)
                         _y_true = self._get_labels4det(_y_example.copy(), _lab)
-                        _tp, _fn, _fp, _tn, _correspondencies = stats[_lab].cal_stats(_y_label, _y_true)
+                        _tp, _fn, _fp, _tn, _correspondencies = stats[_lab].cal_stats(_ys_hat[i].copy(), _y_example.copy())
                     else:
                         _tp, _fn, _fp, _tn, _correspondencies = stats[_lab].cal_stats(_ys_hat[i, ..., _lab],
                                                                                       _y_example[..., _lab])
                     stats[_lab].update_cumulative_stats()
                     stats[self.dm.label_size[2]].add_cumulative_stats(_tp, _fn, _fp, _tn, _correspondencies)
+
+        # Show statistics
+        print(f'Inference time: {time.time() - start}, counter images: {counter_images}')
+
+        return stats
+
+    def _calc_metrics_4csv(self, type_set, color_space, dir):
+        # Load stats
+        stats = Metrics(self.p, self.stats_type)
+
+        # Get prediction
+        start = time.time()
+        counter_images = 0
+        for idx in range(self.dm.batches_size[type_set] - 1):
+            _example_xs = self.dm.batch_x(idx, type_set, color_space)
+            _example_ys = self.dm.batch_y_bbox(idx, type_set) if self.stats_type == "det" else self.dm.batch_y(idx,
+                                                                                                               type_set)
+
+            csv = open(dir)
+            lines = csv.readlines()
+
+            _ys_hat = []
+            counter = counter_images
+            while counter < len(self.dm.X["valid"]) and counter < counter_images + len(self.im.predict(_example_xs)):
+                name = self.dm.X["valid"][counter].split("/")[-1]
+                _y_hat = []
+                for l in range(2, len(lines)):
+                    if lines[l][0:len(name)] == name or lines[l][0:len(name)] == name[:-3]+"jpg":
+                        splits = lines[l].split('"')
+                        det, d = splits[1:len(splits):2], 0
+                        while d < len(det):
+                            if det[d][-4:-1] == "0.0":
+                                det.pop(d)
+                            else:
+                                d += 1
+                        for d in range(len(det)):
+                            det[d] = det[d][1:-1].split(',')[0:-1]
+                            for e in range(len(det[d])):
+                                det[d][e] = int(float(det[d][e]))
+                        for d in det:
+                            _y_hat.append([None, [d[0], d[1]], [d[0]+d[3], d[1]+d[2]]])
+                        break
+                _ys_hat.append(_y_hat)
+                counter += 1
+
+            for i in range(len(_ys_hat)):
+                counter_images += 1
+                _y_example = _example_ys[i] if self.output_type == "cls" or self.stats_type == "det" else \
+                    self.dm.prediction2mask(_example_ys[i])
+
+                _tp, _fn, _fp, _tn, _correspondencies = stats.cal_stats(_ys_hat[i].copy(), _y_example.copy())
+                stats.update_cumulative_stats()
+                stats.cal_complex_stats("basic")
+                print(
+                    f'Idx {idx}:{i}: precision {stats.stats["precision"]}, recall {stats.stats["recall"]}')
+                stats.add_cumulative_stats(_tp, _fn, _fp, _tn, [])
+
 
         # Show statistics
         print(f'Inference time: {time.time() - start}, counter images: {counter_images}')
@@ -137,13 +194,16 @@ class InferenceStats():
         stats[self.dm.label_size[2]].cal_complex_stats("cumulative")
         stats[self.dm.label_size[2]].print_table("cumulative", tablefmt)
 
-    def resume(self, model, type_set="valid", color_space="hsv"):
+    def resume(self, model, type_set="valid", color_space="hsv", from_csv=False, csv_file=" "):
         """
         Get stats of the set, for each class and for all
         :param type_set: valid or train
         :return: None
         """
-        stats = self._calc_metrics(type_set, color_space)
+        if from_csv:
+            stats = self._calc_metrics_4csv(type_set, color_space, csv_file)
+        else:
+            stats = self._calc_metrics(type_set, color_space)
 
         # Show statistics
         acc = f' - Accuracy: '
@@ -151,19 +211,33 @@ class InferenceStats():
         prec = f'\n - Precision: '
         rec = f'\n - Recall: '
         f1 = f'\n - F1 score: '
-        for _lab in range(self.dm.label_size[2]):
-            stats[_lab].cal_complex_stats("cumulative")
-            acc += f'{stats[_lab].stats["accuracy"]} ({self.dm.labels[_lab]}), '
-            iou += f'{stats[_lab].stats["iou"]} ({self.dm.labels[_lab]}), '
-            prec += f'{stats[_lab].stats["precision"]} ({self.dm.labels[_lab]}), '
-            rec += f'{stats[_lab].stats["recall"]} ({self.dm.labels[_lab]}), '
-            f1 += f'{stats[_lab].stats["f1"]} ({self.dm.labels[_lab]}), '
-        stats[self.dm.label_size[2]].cal_complex_stats("cumulative")
-        acc += f'{stats[self.dm.label_size[2]].stats["accuracy"]} (all) %'
-        iou += f'{stats[self.dm.label_size[2]].stats["iou"]} (all) %'
-        prec += f'{stats[self.dm.label_size[2]].stats["precision"]} (all) %'
-        rec += f'{stats[self.dm.label_size[2]].stats["recall"]} (all) %'
-        f1 += f'{stats[self.dm.label_size[2]].stats["f1"]} (all) %'
+        if not from_csv:
+            for _lab in range(self.dm.label_size[2]):
+                stats[_lab].cal_complex_stats("cumulative")
+                acc += f'{stats[_lab].stats["accuracy"]} ({self.dm.labels[_lab]}), '
+                iou += f'{stats[_lab].stats["iou"]} ({self.dm.labels[_lab]}), '
+                prec += f'{stats[_lab].stats["precision"]} ({self.dm.labels[_lab]}), '
+                rec += f'{stats[_lab].stats["recall"]} ({self.dm.labels[_lab]}), '
+                f1 += f'{stats[_lab].stats["f1"]} ({self.dm.labels[_lab]}), '
+            stats[self.dm.label_size[2]].cal_complex_stats("cumulative")
+            acc += f'{stats[self.dm.label_size[2]].stats["accuracy"]} (all) %'
+            iou += f'{stats[self.dm.label_size[2]].stats["iou"]} (all) %'
+            prec += f'{stats[self.dm.label_size[2]].stats["precision"]} (all) %'
+            rec += f'{stats[self.dm.label_size[2]].stats["recall"]} (all) %'
+            f1 += f'{stats[self.dm.label_size[2]].stats["f1"]} (all) %'
+        else:
+            stats.cal_complex_stats("cumulative")
+            acc += f'{stats.stats["accuracy"]}, '
+            iou += f'{stats.stats["iou"]}, '
+            prec += f'{stats.stats["precision"]}, '
+            rec += f'{stats.stats["recall"]}, '
+            f1 += f'{stats.stats["f1"]}, '
+            stats.cal_complex_stats("cumulative")
+            acc += f'{stats.stats["accuracy"]} (all) %'
+            iou += f'{stats.stats["iou"]} (all) %'
+            prec += f'{stats.stats["precision"]} (all) %'
+            rec += f'{stats.stats["recall"]} (all) %'
+            f1 += f'{stats.stats["f1"]} (all) %'
         print(f'Model {model}:')
         print(acc, iou, prec, rec, f1)
 
@@ -287,7 +361,7 @@ class TrainingStats():
         fig, ax = plt.subplots(2)
         for j in range(_training_tries):
             ax[0].plot(self.data[self.EPOCHS][j], self.data[self.LOSS][j], 'k')
-            # ax[0].set_xlim(x_lim_loss)
+            ax[0].set_xlim(x_lim_loss)
             ax[0].set_ylabel("Loss")
             ax[0].set_title(title)
 

@@ -19,18 +19,22 @@ if __name__ == '__main__':
     model = "Net_5"  # <========= models = HelperNetV1, Net_0, Net_1, Net_2
     output_type = "cls"  # regression = reg, classification = cls, regression + classficiation = reg+cls
     inference_type = "bbox4seg" # bbox4reg, bbox4seg, mask4reg or mask4seg
-    min_area = 9 # <= for bbox4reg
+    min_area = 2 # <= for bbox4reg
     neighbours = 3 # <= for bbox4reg
-    start_epoch = 101  # <===================================================== numero de épocas que ya ha entrenado
+    start_epoch = 105  # <===================================================== numero de épocas que ya ha entrenado
     color_space = 82 # <= bgr=None, lab=44, yuv=82, hsv=40, hsl=52
-    specific_weights = f"synthetic_real_cls_yuv_binary"
+    specific_weights = f"synthetic_real_cls_yuv_binary2"
     weights_path = f'../Weights/{model}/{specific_weights}_epoch'
+
+    # Results from csv
+    from_csv = False
+    csv_file = r'C:\Users\TTe_J\Downloads\csv_javi_formzero_fixed_archive.csv'
 
     # Data Variables
     inputs_rgb = [r'C:\Users\TTe_J\Downloads\SyntheticConeDataset(1005)\RightImages',
                   r'C:\Users\TTe_J\Downloads\17-17-05']
-    # labels = ["b", "y", "o_s", "o_b"]
     labels = ["binary"]
+    # labels = ["b", "y", "o_s", "o_b"]
     original_size = (720, 1280, 3) # <= for bbox4reg
     label_size = (input_dims[1], input_dims[2], len(labels))
     background = True
@@ -48,6 +52,6 @@ if __name__ == '__main__':
     elif function[select_function] == function[2]:
         sm.set(color_space=color_space, tablefmt=tablefmt)
     elif function[select_function] == function[3]:
-        sm.resume(model, color_space=color_space)
+        sm.resume(model, color_space=color_space, from_csv=from_csv, csv_file=csv_file)
     else:
         print("Error selecting function!!")

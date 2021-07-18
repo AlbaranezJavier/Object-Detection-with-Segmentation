@@ -387,7 +387,7 @@ def Net_5(inputs, batch, output_type, learn_reg=1e-2):
     fixed_n3Li = Conv2DFixed("border", out_channels=3)(inputs)
     input_fixed = concatenate([fixed_n3Li, inputs], axis=3)
 
-    n3Li = Conv2D_NA(k_dim=3, output_channel=8, stride=1, padding="SAME", k_reg=l2)(input_fixed)
+    n3Li = Conv2D_NA(k_dim=5, output_channel=8, stride=1, padding="SAME", k_reg=l2)(input_fixed)
 
     # - Level 4, Li
     n4Li = Conv2DFixed("bilinear", out_channels=8)(n3Li)
@@ -425,6 +425,7 @@ def Net_5(inputs, batch, output_type, learn_reg=1e-2):
         n3Ld_cls = Conv2D(filters=1, kernel_size=(1, 1), kernel_regularizer=l2, padding="SAME", activation="softmax")(n3Ld)
         return n3Ld_reg, n3Ld_cls
     else:
+        n3Ld = Conv2D_NA(k_dim=5, output_channel=5, stride=1, padding="SAME", k_reg=l2)(n3Ld)
         n3Ld = Conv2D(filters=2, kernel_size=(1, 1), kernel_regularizer=l2, padding="SAME", activation="softmax")(n3Ld)
     return n3Ld
 

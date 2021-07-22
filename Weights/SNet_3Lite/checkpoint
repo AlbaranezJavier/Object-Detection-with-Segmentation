@@ -1,0 +1,2 @@
+model_checkpoint_path: "synthetic_real_cls_yuv_binary_epoch_112"
+all_model_checkpoint_paths: "synthetic_real_cls_yuv_binary_epoch_112"

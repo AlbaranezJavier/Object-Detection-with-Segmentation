@@ -1,6 +1,8 @@
-# Trabajo Fin de Máster - Detección de objetos en imágenes con redes de segmentación
-
-Esta página contiene todo el desarrollo realizado sobre el TFM.
+# Trabajo Fin de Máster
+Título: Detección de objetos en imágenes con redes de segmentación.
+Máster: Visión Artificial.
+Universidad: Rey Juan Carlos.
+Mes/Año: 07/2021.
 
 ### Temática y objetivo
 

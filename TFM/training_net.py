@@ -12,8 +12,9 @@ if __name__ == '__main__':
     # Data Variables
     inputs_rgb = [r'C:\Users\TTe_J\Downloads\SyntheticConeDataset(1005)\RightImages',
                   r'C:\Users\TTe_J\Downloads\17-17-05']
-    # labels_class = ["b", "y", "o_s", "o_b"]
-    labels_class = ["binary"]
+    # inputs_rgb = [r'C:\Users\TTe_J\Downloads\17-17-05']
+    labels_class = ["b", "y", "o_s", "o_b"]
+    # labels_class = ["binary"]
     # label_size = (720, 1280, len(labels_class))
     label_size = (180, 320, len(labels_class))
     background = True
@@ -25,12 +26,12 @@ if __name__ == '__main__':
     dm = DataManager(inputs_rgb, labels_class, label_size, background, valid_size, batch_size, output_type)
 
     # Net Variables
-    model = "Net_5"  # models = HelperNetV1, ..V2, ..V3, Net_0, .._1, .._2, .._3, .._4, .._5, .._6, MgNet_0
-    start_epoch = 102 # <= number epoch trained
-    id_copy = "_cls_yuv_binary" # <= logs version? "" => main
+    model = "SNet_3L"  # models = HelperNetV1, ..V2, ..V3, SNet_5L2, .._4L, .._3L, .._3Lite, .._4, .._5, .._6, MgNet_0
+    start_epoch = 98 # <= number epoch trained
+    id_copy = "_cls_yuv" # <= logs version? "" => main
     color_space = 82 # <= bgr=None, lab=44, yuv=82, hsv=40, hsl=52
     end_epoch = start_epoch + 100
-    learn_opt, learn_reg = 1e-4, 1e-1
+    learn_opt, learn_reg = 1e-4, 1e-2
     save_weights = True
     min_acc = 99.75
     specific_weights = "synthetic_real"+id_copy

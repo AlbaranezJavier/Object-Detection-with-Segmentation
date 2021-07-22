@@ -59,7 +59,7 @@ class InferenceStats():
                     if self.stats_type == "det":
                         _y_label = self._get_labels4det(_ys_hat[i].copy(), _lab)
                         _y_true = self._get_labels4det(_y_example.copy(), _lab)
-                        _tp, _fn, _fp, _tn, _correspondencies = stats[_lab].cal_stats(_ys_hat[i].copy(), _y_example.copy())
+                        _tp, _fn, _fp, _tn, _correspondencies = stats[_lab].cal_stats(_y_label, _y_true)
                     else:
                         _tp, _fn, _fp, _tn, _correspondencies = stats[_lab].cal_stats(_ys_hat[i, ..., _lab],
                                                                                       _y_example[..., _lab])

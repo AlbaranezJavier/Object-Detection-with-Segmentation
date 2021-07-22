@@ -4,7 +4,7 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import RMSprop
 from tensorflow.keras.losses import CategoricalCrossentropy, BinaryCrossentropy, MeanAbsoluteError, MeanSquaredError
 from tensorflow.keras.metrics import CategoricalAccuracy, BinaryAccuracy, Accuracy
-from TFM.Networks.Net import *
+from TFM.Networks.SNet import *
 from TFM.Networks.HNet import *
 from TFM.Networks.MgNet import *
 
@@ -52,20 +52,22 @@ class ModelManager:
             self.nn = Model(inputs, HelperNetV2(inputs, learn_reg))
         elif self.model == "HelperNetV3":
             self.nn = Model(inputs, HelperNetV3(inputs, learn_reg))
-        elif self.model == "Net_0":
-            self.nn = Model(inputs, Net_0(inputs, self.dim[0], learn_reg))
-        elif self.model == "Net_1":
-            self.nn = Model(inputs, Net_1(inputs, self.dim[0], learn_reg))
-        elif self.model == "Net_2":
-            self.nn = Model(inputs, Net_2(inputs, self.dim[0], learn_reg))
+        elif self.model == "SNet_5L0":
+            self.nn = Model(inputs, SNet_5L0(inputs, self.dim[0], learn_reg))
+        elif self.model == "SNet_5L1":
+            self.nn = Model(inputs, SNet_5L1(inputs, self.dim[0], learn_reg))
+        elif self.model == "SNet_5L2":
+            self.nn = Model(inputs, SNet_5L2(inputs, self.dim[0], learn_reg))
         elif self.model == "Net_3":
             self.nn = Model(inputs, Net_3(inputs, self.dim[0], learn_reg))
         elif self.model == "Net_4":
             self.nn = Model(inputs, Net_4(inputs, self.dim[0], learn_reg))
-        elif self.model == "Net_5":
-            self.nn = Model(inputs, Net_5(inputs, self.dim[0], self.output_type, learn_reg))
-        elif self.model == "Net_6":
-            self.nn = Model(inputs, Net_6(inputs, self.dim[0], self.output_type, learn_reg))
+        elif self.model == "SNet_3L":
+            self.nn = Model(inputs, SNet_3L(inputs, self.dim[0], self.output_type, learn_reg))
+        elif self.model == "SNet_3Lite":
+            self.nn = Model(inputs, SNet_3Lite(inputs, self.dim[0], self.output_type, learn_reg))
+        elif self.model == "SNet_4L":
+            self.nn = Model(inputs, SNet_4L(inputs, self.dim[0], learn_reg))
         elif self.model == "MgNet_0":
             self.nn = MgNet_0(self.dim[0], learn_reg)
             self.nn.build(input_shape=self.dim)

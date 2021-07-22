@@ -2,7 +2,7 @@ from TFM.Data.DataManager import DataManager
 import cv2, shutil, os, json
 
 """
-This script get lables from json and generate train or valid set json
+This script get labels from json and generate train or valid set json
 """
 
 if __name__ == '__main__':

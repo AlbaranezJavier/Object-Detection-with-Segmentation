@@ -1,5 +1,9 @@
 from TFM.Statistics.StatsModel import TrainingStats
 
+"""
+This script generates the metrics of the training process
+"""
+
 if __name__ == '__main__':
     # Variables
     model_name = "Net_5"

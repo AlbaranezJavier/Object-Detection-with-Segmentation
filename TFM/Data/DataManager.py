@@ -45,6 +45,7 @@ class DataManager():
         self.JSON_PATH = "jsons"
         self.ERROR_PATH = "errors"
         self.MAIN_JSON = "train.json"
+        # self.MAIN_JSON = "valid_set.json"
         self.REG = "regions"
         self.SATT = "shape_attributes"
         self.RATT = "region_attributes"

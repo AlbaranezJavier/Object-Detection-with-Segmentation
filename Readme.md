@@ -103,6 +103,6 @@ Los resultados son prometedores, pero es necesario explorar esta solución en un
 ## Crédito
 Quiero agraceder el apoyo recibido por mis tutores y compañeros del grupo CAPO, en especial a mis compañeras Laura Llopis Ibor y Susana Pineda de Luelmo.
 
-| [Inicio](https://github.com/AlbaranezJavier/JaviProject/blob/main/Readme.md) | [Código TFM](https://github.com/AlbaranezJavier/JaviProject/tree/main/TFM) |
+| [JaviProject web](https://albaranezjavier.github.io/JaviProject/) |
 
 

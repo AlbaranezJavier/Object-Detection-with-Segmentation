@@ -1,4 +1,4 @@
-# Trabajo Fin de Máster
+# Trabajo Fin de Máster - Detección de objetos en imágenes con redes de segmentación y entrenamiento con datos sintéticos
 
 Esta página contiene todo el desarrollo realizado sobre el TFM.
 
@@ -103,6 +103,6 @@ Los resultados son prometedores, pero es necesario explorar esta solución en un
 ## Crédito
 Quiero agraceder el apoyo recibido por mis tutores y compañeros del grupo CAPO, en especial a mis compañeras Laura Llopis Ibor y Susana Pineda de Luelmo.
 
-
+| [Inicio](https://github.com/AlbaranezJavier/JaviProject/blob/main/Readme.md) | [Código TFM](https://github.com/AlbaranezJavier/JaviProject/tree/main/TFM) |
 
 

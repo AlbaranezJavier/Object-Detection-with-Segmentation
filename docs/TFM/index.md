@@ -1,4 +1,4 @@
-# Trabajo Fin de Máster - Detección de objetos en imágenes con redes de segmentación y entrenamiento con datos sintéticos
+# Trabajo Fin de Máster - Detección de objetos en imágenes con redes de segmentación
 
 Esta página contiene todo el desarrollo realizado sobre el TFM.
 

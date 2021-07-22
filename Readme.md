@@ -1,7 +1,10 @@
 # Trabajo Fin de Máster
 Título: Detección de objetos en imágenes con redes de segmentación.
+
 Máster: Visión Artificial.
+
 Universidad: Rey Juan Carlos.
+
 Mes/Año: 07/2021.
 
 ### Temática y objetivo

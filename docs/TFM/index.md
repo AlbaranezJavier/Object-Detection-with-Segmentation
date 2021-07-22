@@ -23,7 +23,7 @@ Tengo otros dos proyectos muy relacionados con el objetivo de este: (i) [un gene
 
 ### Enlaces de interés
 
-| [Memoria](https://github.com/AlbaranezJavier/JaviProject/edit/main/docs/TFM/TFM_JAM.pdf) |
+| [Memoria](https://github.com/AlbaranezJavier/JaviProject/blob/main/docs/TFM/TFM_JAM.pdf) |
 
 ## Estructura del código
 

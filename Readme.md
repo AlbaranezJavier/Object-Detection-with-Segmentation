@@ -10,7 +10,7 @@ Mes/Año: 07/2021.
 ### Temática y objetivo
 
 Soy miembro del equipo de competición [UMotorsport](http://u-motorsport.com/2019/08/19/umotorsport/) y este equipo
-colabora con el grupo de investigación [CAPO](http://caporesearch.es/), al cual también pertenezco. La competición internacional
+colabora con el grupo de investigación [CAPO](http://caporesearch.es/), al que también pertenezco. La competición internacional
 en la que se encuentra envuelto el proyecto es [Formula Student](https://www.formulastudent.es/), el cual tiene por objetivo
 dotar a un coche de carreras de una inteligencia artificial capaz de conducir de forma autónoma por un circuito delimitado por balizas (conos).
 

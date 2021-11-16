@@ -1,4 +1,4 @@
-from TFM.Data.DataManager import DataManager
+from Data.DataManager import DataManager
 import cv2, shutil, os
 
 """
